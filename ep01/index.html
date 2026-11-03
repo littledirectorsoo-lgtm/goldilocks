@@ -466,7 +466,7 @@ g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.14,t+.12);g.gain.setV
 function fx(name,t,o){o=o||{};var b=BUF[name];
 if(b){var s=ctx.createBufferSource(),g=gain((o.g||1)*(.82+Math.random()*.18));s.buffer=b;
 s.playbackRate.value=(o.r||1)*(.93+Math.random()*.11);chain(s,g,sfxBus);s.start(t);return b.duration}
-load(name).catch(function(){});(S[name]||S.thud)(t);return 1}
+load(name).catch(function(){});if(name==="heartbeat")S.heartbeat(t);return 1}
 function ctxText(el){var p=el.parentElement,s="";for(var i=0;i<3&&p;i++,p=p.parentElement)s=p.textContent||s;return s.slice(0,600)}
 function pick(x,el){
 if(/쿠웅/.test(x))return "cannon";if(/콰직|콰앙|쾅/.test(x))return "crash";if(/탕/.test(x))return "gun";if(/두근/.test(x))return "heartbeat";
@@ -476,8 +476,9 @@ if(/콜록|쿨럭/.test(x))return "cough";
 if(/그르[릉렁]|으르렁/.test(x))return (EP==="ep07h"||/탱크|전차|엔진|트럭|궤도|포탑|장갑/.test(ctxText(el)))?"tank_engine":"growl";
 if(/저벅/.test(x))return "steps";if(/부스럭/.test(x))return "whoosh";if(/툭|톡|탁/.test(x))return "tap";
 if(/뽀글|꾸르륵|보글|꿀렁/.test(x))return "bubble";if(/띠링|띠리링|따르릉/.test(x))return "ring";return "thud"}
-function typing(t,n){n=Math.min(Math.max(n,10),42);for(var i=0;i<n;i++){t+=.07+Math.random()*.07;if(Math.random()<.12)t+=.18;fx("type",t,{g:.8})}
-fx("click",t+.25,{r:.6,g:.6});return t+.6-T()}
+function typing(t,n){
+if(!BUF.typing){load("typing").catch(function(){});return 1}
+return fx("typing",t,{g:.8})}
 function trigger(el){var c=el.classList,x=el.textContent||"",t=T()+.02,n;
 if(c.contains("sfx")){n=pick(x,el);duckAll(Math.min(fx(n,t,n==="whoosh"?{g:.5}:null),3))}
 else if(c.contains("hum")){if(/띠/.test(x))duckAll(fx("ring",t));else{S.voice(t);duckAll(2.4)}}
@@ -489,7 +490,7 @@ var SEL=".sfx,.hum,.rec.doc,.bub.phone,.gap,.black";
 var io=("IntersectionObserver" in window)?new IntersectionObserver(function(es){es.forEach(function(e){
 if(!e.isIntersecting||!on||!ctx||fired.has(e.target))return;fired.add(e.target);try{trigger(e.target)}catch(err){}})},{threshold:.5}):null;
 if(io)document.querySelectorAll(SEL).forEach(function(el){io.observe(el)});
-function preload(){var need={type:1,click:1,phone:1,ring:1};
+function preload(){var need={typing:1,phone:1,ring:1};
 document.querySelectorAll(".sfx").forEach(function(el){need[pick(el.textContent||"",el)]=1});
 Object.keys(need).forEach(function(k){if(k==="phone"&&!document.querySelector(".bub.phone"))return;load(k).catch(function(){})})}
 function start(){
