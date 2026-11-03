@@ -100,8 +100,8 @@ html.mo .mo-sub{display:block;opacity:0;translate:0 10px}
 html.mo .in>.mo-sub{opacity:1;translate:0 0;transition:opacity 1.3s ease-out .25s,translate 1.4s var(--mo-ease) .25s}
 html.mo .black .mo-sub{transition-delay:.6s}
 /* record doc: typewriter + stamp */
-html.mo .rec.doc .mo-ch{opacity:0}
-html.mo .rec.doc .mo-ch.on{opacity:1}
+html.mo .rec .mo-ch{opacity:0}
+html.mo .rec .mo-ch.on{opacity:1}
 html.mo .rec.doc::after{opacity:0;scale:1.8}
 html.mo .rec.doc.stamp::after{opacity:.8;scale:1;transition:opacity .2s,scale .35s cubic-bezier(.3,1.4,.5,1)}
 html.mo .rec.doc::before{opacity:0}
@@ -192,7 +192,7 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
   }
   function onIn(el){
     el.classList.add('in');
-    if(el.classList.contains('doc')&&el._moChars)type(el);
+    if(el.classList.contains('rec')&&el._moChars)type(el);
     if(el.classList.contains('mo-draw'))setTimeout(function(){
       el.classList.add('mo-done');el.classList.remove('mo-draw');
       each('.mo-e',function(e){e.remove()},el);
@@ -204,8 +204,8 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
     if(!ok)return;
     each('.cast li',function(li,i){li.style.setProperty('--i',Math.min(i,8))});
     each('.p',function(p){each('.cap,.bub,.hum,.sfx',function(c,i){c.style.setProperty('--i',Math.min(i,5))},p)});
-    each('.gap,.black,.rec:not(.doc)',sub);
-    each('.rec.doc',function(r){r._moHTML=r.innerHTML;r._moChars=split(r)});
+    each('.gap,.black',sub);
+    each('.rec',function(r){r._moHTML=r.innerHTML;r._moChars=split(r)});
     each('.scene',function(sc){edges(sc);each(':scope>p',function(p,i){p.style.setProperty('--i',Math.min(i,6))},sc)});
     each('.fi-ph',bars);
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);onIn(e.target)}})},{rootMargin:'0px 0px -10% 0px',threshold:0});
@@ -409,11 +409,11 @@ return fx("typing",t,{g:.8})}
 function trigger(el){var c=el.classList,x=el.textContent||"",t=T()+.02,n;
 if(c.contains("sfx")){n=pick(x,el);duckAll(Math.min(fx(n,t,n==="whoosh"?{g:.5}:null),3))}
 else if(c.contains("hum")){if(/띠/.test(x))duckAll(fx("ring",t));else{S.voice(t);duckAll(2.4)}}
-else if(c.contains("doc"))duckAll(typing(t,x.replace(/\s/g,"").length));
+else if(c.contains("rec"))duckAll(typing(t,x.replace(/\s/g,"").length));
 else if(c.contains("phone"))duckAll(fx("phone",t)+.5);
 else if(c.contains("gap")||c.contains("black")){if(/음—/.test(x)){S.voice(t);duckAll(2.4)}
 else{duck(musDuck.gain,.03,2,.6,1.6);duck(ambDuck.gain,c.contains("black")?.15:.35,1.8,.5,1.4)}}}
-var SEL=".sfx,.hum,.rec.doc,.bub.phone,.gap,.black";
+var SEL=".sfx,.hum,.rec,.bub.phone,.gap,.black";
 var io=("IntersectionObserver" in window)?new IntersectionObserver(function(es){es.forEach(function(e){
 if(!e.isIntersecting||!on||!ctx||fired.has(e.target))return;fired.add(e.target);try{trigger(e.target)}catch(err){}})},{threshold:.5}):null;
 if(io)document.querySelectorAll(SEL).forEach(function(el){io.observe(el)});
