@@ -70,7 +70,7 @@ body{background:var(--ground);color:var(--paper);font-family:var(--sans);margin:
 .scene .sc-bub b{display:block;font-size:11px;color:#6d6a62;font-weight:700;margin-bottom:2px}
 .scene .sc-sfx{margin-top:8px;font:400 clamp(22px,6vw,34px)/1.2 "Black Han Sans",sans-serif;color:#d9c9a0}
 </style><style>.sndbar{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:50;display:flex;gap:6px;align-items:center}.snd{font:600 12px/1 var(--dlg,sans-serif);letter-spacing:.04em;color:#a9adb0;background:rgba(11,12,13,.82);border:1px solid #2c2e30;border-radius:999px;padding:9px 14px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:.75;transition:opacity .2s,border-color .2s}.snd:hover,.snd:focus-visible{opacity:1;border-color:#6d6a62}.snd[aria-pressed=true]{color:#ece8de;border-color:#6d6a62}.snd[hidden]{display:none}.snd-v{padding:9px 11px;font-size:11px}.snd-hint{position:fixed;left:50%;top:calc(60px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:45;font:600 13px/1 "Noto Sans KR",sans-serif;color:#cfcac0;background:rgba(11,12,13,.9);border:1px solid #3a3528;border-radius:999px;padding:10px 16px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5);transition:opacity .35s,transform .35s;animation:sndin .5s ease-out}.snd-hint.out{opacity:0;transform:translate(-50%,-8px)}@keyframes sndin{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}</style>
-<header class="topbar" id="topbar"><a class="tb-home" href="../index.html" aria-label="웹툰 홈으로"><span aria-hidden="true">←</span> 골디락스존</a><span class="tb-t"><em>17화</em> 1인용</span><nav class="tb-r"><a href="../ep09/index.html" aria-label="이전 화">‹</a><a href="../index.html#timeline" class="tb-list" aria-label="목록">☰</a><a href="../ep10/index.html" aria-label="다음 화">›</a></nav><i class="tb-prog" id="tbprog"></i></header><style>
+<header class="topbar" id="topbar"><a class="tb-home" href="../index.html" aria-label="웹툰 홈으로"><span aria-hidden="true">←</span> 골디락스존</a><span class="tb-t"><em>17화</em> 1인용</span><nav class="tb-r"><a href="../ep09/index.html" aria-label="이전 화">‹</a><a href="../index.html#timeline" class="tb-list" aria-label="목록">☰</a><a href="../ep10/index.html" aria-label="다음 화">›</a></nav><i class="tb-prog" id="tbprog"></i></header><style>.easy{max-width:800px;margin:6px auto 30px;padding:16px 18px;border-left:3px solid #8a6d1f;background:#131517;border-radius:0 8px 8px 0;font-family:"Noto Sans KR",sans-serif;color:#d6d3ca;display:flex;flex-direction:column;gap:8px}.easy b{display:block;font-size:11.5px;letter-spacing:.14em;color:#d9c9a0;margin-bottom:2px}.easy p{margin:0;line-height:1.75;font-size:14.5px}.easy .k{font:700 clamp(16px,4vw,19px)/1.6 "Noto Serif KR",serif;color:#ece8de}.easy-cap{max-width:760px;margin:-14px auto 30px;padding:0 6px;font:600 clamp(14px,3.6vw,16px)/1.75 "Noto Serif KR",serif;color:#e6dcc0;border-left:3px solid #8a6d1f;padding-left:12px}</style><style>
 @media (prefers-reduced-motion:reduce){.fi-pop{animation:none!important}}
 .tb-prog{box-shadow:0 0 8px rgba(200,56,45,.75),0 0 2px rgba(255,120,100,.9)}
 .tb-prog::after{content:"";position:absolute;right:-3px;top:-2px;width:6px;height:6px;border-radius:50%;background:#ff7a6b;box-shadow:0 0 10px 3px rgba(200,56,45,.7);opacity:0;transition:opacity .4s}
@@ -224,14 +224,17 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
     <h1>1인용</h1>
     <p>호출기는 아빠의 것이었다.<br>우주선은 탑승자를 다시 분류했다.</p>
   </header>
-<section class="cast" aria-label="이번 화 인물"><h2>이번 화 인물</h2><ul><li><img src="../chars/yujin.jpg" alt=""><span><b>유진</b><small>엄마가 남긴 마지막 말을 따라 호출기를 찾는 누나.</small></span></li></ul></section>
+<section class="easy" aria-label="읽기 도움"><div><b>앞 이야기</b><p>산길에서 엄마가 쓰러지며 말했다. "옷장에… 우주선 호출기가."
+집에서 찾은 호출기는 하나였다. 유진은 아저씨를 수갑으로 묶어 두고, 혼자 우주선에 올랐다.</p></div><div><b>로그라인</b><p class="k">아빠의 호출기로 혼자 우주선에 오른 유진이, 등록자가 다르다는 안내와 함께 낯선 분류를 받는다.</p></div><div><b>등장인물</b><p>유진(혼자 탄 탑승자) · 우주선 안내음 · 민호(회상)</p></div></section>
+<section class="cast" aria-label="출연"><h2>출연</h2><ul><li><img src="../chars/yujin.jpg" alt=""><span><b>유진</b><small>엄마가 남긴 마지막 말을 따라 호출기를 찾는 누나.</small></span></li></ul></section>
   <div class="gap" style="height:clamp(140px,26vw,220px)">〈골디락스존 프로젝트〉, 그 직후</div>
-  <div class="p"><img src="n01n2.jpg" alt="2층집 앞에서 떠오르는 1인용 우주선 (13화에서 옮김)"></div>
+  <div class="p"><img src="n01n2.jpg" alt="2층집 앞에서 떠오르는 1인용 우주선"></div>
   <div class="p"><img src="n02n.jpg" alt="좌석에 홀로 웅크린 유진, 철사 꽃"></div>
   <div class="scene"><p class="sc-d">벽 화면이 켜지고 놀라는 유진</p><p class="sc-bub"><b>우주선 안내음</b>탑승을 환영합니다. 호출기 등록 정보를 확인합니다.</p></div>
   <div class="scene"><p class="sc-d">마스크 위로 크게 뜬 유진의 눈</p><p class="sc-bub"><b>우주선 안내음</b>등록 소유자와 탑승자가 다릅니다. 재분류합니다.</p><p class="sc-bub"><b>유진</b>…재분류?</p></div>
   <div class="scene"><p class="sc-d">머리부터 발끝까지 훑는 하얀 스캔 빛</p><p class="sc-cap">키, 몸무게, 근육량. 우주선은 그녀를 꼼꼼히 쟀다.</p></div>
   <div class="p"><img src="o04.jpg" alt="기계 팔이 손목에 흰 팔찌를 채움"><div class="sfx" style="left:4%;top:6.8%;font-size:clamp(22px,7cqw,58px);transform:rotate(-6deg)">딸깍</div></div>
+  <div class="easy-cap">249번도 손목에 팔찌를 찼다.</div>
   <div class="scene"><p class="sc-d">손목의 팔찌를 내려다보는 유진</p><p class="sc-bub"><b>우주선 안내음</b>분류 완료. 즐거운 여행 되십시오.</p></div>
   <div class="p"><img src="o06.jpg" alt="반딧불처럼 떠오르는 우주선들, 그중 문이 열린 채 빈 우주선 하나"></div>
   <div class="p"><img src="o07.jpg" alt="창에 손을 대고 빈 우주선을 보는 유진"><div class="cap" style="right:4.7%;top:4.8%">어떤 우주선은 비어 있었다.</div></div>

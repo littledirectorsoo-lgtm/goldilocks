@@ -70,7 +70,7 @@ body{background:var(--ground);color:var(--paper);font-family:var(--sans);margin:
 .scene .sc-bub b{display:block;font-size:11px;color:#6d6a62;font-weight:700;margin-bottom:2px}
 .scene .sc-sfx{margin-top:8px;font:400 clamp(22px,6vw,34px)/1.2 "Black Han Sans",sans-serif;color:#d9c9a0}
 </style><style>.sndbar{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:50;display:flex;gap:6px;align-items:center}.snd{font:600 12px/1 var(--dlg,sans-serif);letter-spacing:.04em;color:#a9adb0;background:rgba(11,12,13,.82);border:1px solid #2c2e30;border-radius:999px;padding:9px 14px;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:.75;transition:opacity .2s,border-color .2s}.snd:hover,.snd:focus-visible{opacity:1;border-color:#6d6a62}.snd[aria-pressed=true]{color:#ece8de;border-color:#6d6a62}.snd[hidden]{display:none}.snd-v{padding:9px 11px;font-size:11px}.snd-hint{position:fixed;left:50%;top:calc(60px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:45;font:600 13px/1 "Noto Sans KR",sans-serif;color:#cfcac0;background:rgba(11,12,13,.9);border:1px solid #3a3528;border-radius:999px;padding:10px 16px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.5);transition:opacity .35s,transform .35s;animation:sndin .5s ease-out}.snd-hint.out{opacity:0;transform:translate(-50%,-8px)}@keyframes sndin{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}</style>
-<header class="topbar" id="topbar"><a class="tb-home" href="../index.html" aria-label="웹툰 홈으로"><span aria-hidden="true">←</span> 골디락스존</a><span class="tb-t"><em>16화</em> 그 밤</span><nav class="tb-r"><a href="../ep08/index.html" aria-label="이전 화">‹</a><a href="../index.html#timeline" class="tb-list" aria-label="목록">☰</a><a href="../ep09p/index.html" aria-label="다음 화" class="tofilm">›</a></nav><i class="tb-prog" id="tbprog"></i></header><style>
+<header class="topbar" id="topbar"><a class="tb-home" href="../index.html" aria-label="웹툰 홈으로"><span aria-hidden="true">←</span> 골디락스존</a><span class="tb-t"><em>16화</em> 그 밤</span><nav class="tb-r"><a href="../ep08/index.html" aria-label="이전 화">‹</a><a href="../index.html#timeline" class="tb-list" aria-label="목록">☰</a><a href="../ep09p/index.html" aria-label="다음 화" class="tofilm">›</a></nav><i class="tb-prog" id="tbprog"></i></header><style>.easy{max-width:800px;margin:6px auto 30px;padding:16px 18px;border-left:3px solid #8a6d1f;background:#131517;border-radius:0 8px 8px 0;font-family:"Noto Sans KR",sans-serif;color:#d6d3ca;display:flex;flex-direction:column;gap:8px}.easy b{display:block;font-size:11.5px;letter-spacing:.14em;color:#d9c9a0;margin-bottom:2px}.easy p{margin:0;line-height:1.75;font-size:14.5px}.easy .k{font:700 clamp(16px,4vw,19px)/1.6 "Noto Serif KR",serif;color:#ece8de}.easy-cap{max-width:760px;margin:-14px auto 30px;padding:0 6px;font:600 clamp(14px,3.6vw,16px)/1.75 "Noto Serif KR",serif;color:#e6dcc0;border-left:3px solid #8a6d1f;padding-left:12px}</style><style>
 @media (prefers-reduced-motion:reduce){.fi-pop{animation:none!important}}
 .tb-prog{box-shadow:0 0 8px rgba(200,56,45,.75),0 0 2px rgba(255,120,100,.9)}
 .tb-prog::after{content:"";position:absolute;right:-3px;top:-2px;width:6px;height:6px;border-radius:50%;background:#ff7a6b;box-shadow:0 0 10px 3px rgba(200,56,45,.7);opacity:0;transition:opacity .4s}
@@ -224,7 +224,9 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
     <h1>그 밤</h1>
     <p>유진이 집을 비운 하룻밤.<br>그날 옷장 하나에 못이 박혔다.</p>
   </header>
-<section class="cast" aria-label="이번 화 인물"><h2>이번 화 인물</h2><ul><li><img src="../chars/yujin.jpg" alt=""><span><b>유진</b><small>엄마가 남긴 마지막 말을 따라 호출기를 찾는 누나.</small></span></li><li><img src="../chars/minho.jpg" alt=""><span><b>민호</b><small>언제부턴가 누나보다 어려진, 늘 열한 살인 동생.</small></span></li></ul></section>
+<section class="easy" aria-label="읽기 도움"><div><b>앞 이야기</b><p>착한 경찰이던 아저씨는 딸 승주를 먼저 하늘로 보내고 아내를 잃었다.
+딸에게 가려고 호출기를 빼앗기 시작했고, 어두운 산길에서 엄마·유진·민호에게 총을 겨눴다.</p></div><div><b>로그라인</b><p class="k">감염을 숨긴 아빠와 그를 지켜야 하는 엄마가, 딸 유진이 집을 비운 하룻밤에 가족의 호출기를 지킬 방법을 정한다.</p></div><div><b>등장인물</b><p>유진(25세, 산소를 구하러 나간 딸) · 민호(로봇 동생, 그대로 열한 살) · 엄마 · 아빠(골디락스 직원, 감염) · 두목(호출기 사냥꾼의 우두머리)</p></div></section>
+<section class="cast" aria-label="출연"><h2>출연</h2><ul><li><img src="../chars/yujin.jpg" alt=""><span><b>유진</b><small>엄마가 남긴 마지막 말을 따라 호출기를 찾는 누나.</small></span></li><li><img src="../chars/minho.jpg" alt=""><span><b>민호</b><small>언제부턴가 누나보다 어려진, 늘 열한 살인 동생.</small></span></li></ul></section>
   <div class="scene"><p class="sc-d">손전등 빛 속, 판자에 못이 박힌 옷장 서랍과 안쪽에서 긁힌 손톱자국</p><p class="sc-sfx">끼익… 끼익…</p><p class="sc-cap">유진은 이 옷장에 못이 박힌 밤을 몰랐다.</p></div>
   <div class="gap" style="height:clamp(140px,26vw,220px)">아저씨를 만나기 며칠 전<br>유진 · 25세</div>
   <div class="p"><img src="y03.jpg" alt="빈 산소통을 흔드는 유진과 식탁에 앉은 민호"><div class="bub br" style="left:4.1%;top:66.7%">또 바닥이네.</div></div>
@@ -249,6 +251,7 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
   <div class="scene"><p class="sc-d">서랍 안 아빠의 무릎 옆에 천에 싸인 꾸러미를 놓는 엄마의 손, 그 위를 덮는 아빠의 손</p></div>
   <div class="rec">“쏴. 그냥 쏴.”<br>엄마는 쏘지 못했다.</div>
   <div class="p"><img src="g24.jpg" alt="울면서 서랍에 판자를 못질하는 엄마"><div class="sfx" style="left:6%;top:10%;transform:rotate(-8deg)">쾅</div></div>
+  <div class="easy-cap">천에 싼 것은 호출기였다.</div>
   <div class="p"><img src="g21n.jpg" alt="민호의 어깨를 붙잡은 엄마"><div class="bub bl" style="right:4%;top:5.6%">우리 딸<br>잘 부탁해.</div></div>
   <div class="scene"><p class="sc-d">엄마의 품에서 2층 옷장 쪽을 바라보는 민호</p><p class="sc-bub"><b>민호</b>누나한테<br>말해요?</p><p class="sc-bub"><b>엄마</b>아니.<br>아빠는… 떠난 거야.</p></div>
   <div class="p"><img src="y05.jpg" alt="새벽, 돌아온 유진을 껴안는 엄마"><div class="bub sm br" style="left:3%;top:4%">아빠는…<br>떠났어.</div></div>
@@ -257,6 +260,7 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
   <div class="p"><img src="y06m.jpg" alt="산소통을 메고 빈 고속도로를 걷는 세 사람의 뒷모습"><div class="cap" style="left:5.3%;top:75.6%">산소를 찾아, 세 사람은 집을 떠났다.</div></div>
   <div class="scene"><p class="sc-d">떠나는 길에서 혼자 뒤돌아 판자 박힌 2층 창을 보는 민호, 앞에서 부르는 유진</p><p class="sc-bub"><b>유진</b>민호야, 안 와?</p><p class="sc-bub"><b>민호</b>…응. 가.</p></div>
   <div class="p"><img src="f1.jpg" alt="들판을 서성이는 감염체 셋, 하나는 깨진 마스크를 쓰고"><div class="cap" style="left:3%;top:64.1%">들판에는 감염체가 셋 서성였다. 하나는 아직 깨진 마스크를 쓰고 있었다.</div></div>
+  <div class="easy-cap">13화, 빈 우주선이 떠난 그 들판.</div>
   <div class="scene"><p class="sc-d">갈색 안개 낀 산등성이, 확성기 소리를 쫓아 걷는 방독면의 남자</p><p class="sc-cap">같은 시각, 산 너머에서는 한 남자가 호출기를 찾고 있었다.</p></div>
   <div class="rec">이어지는 이야기<br>영화 〈골디락스존 프로젝트〉</div>
   <footer class="end">
