@@ -76,6 +76,8 @@ body{background:var(--ground);color:var(--paper);font-family:var(--sans);margin:
 .tb-prog{box-shadow:0 0 8px rgba(200,56,45,.75),0 0 2px rgba(255,120,100,.9)}
 .tb-prog::after{content:"";position:absolute;right:-3px;top:-2px;width:6px;height:6px;border-radius:50%;background:#ff7a6b;box-shadow:0 0 10px 3px rgba(200,56,45,.7);opacity:0;transition:opacity .4s}
 .topbar.mo-scr .tb-prog::after{opacity:1}
+html.tw .rec .mo-ch{opacity:0}
+html.tw .rec .mo-ch.on{opacity:1}
 @media (prefers-reduced-motion:no-preference){
 html.mo{--mo-ease:cubic-bezier(.2,.75,.2,1);--mo-spring:cubic-bezier(.34,1.56,.64,1)}
 /* title */
@@ -101,8 +103,6 @@ html.mo .mo-sub{display:block;opacity:0;translate:0 10px}
 html.mo .in>.mo-sub{opacity:1;translate:0 0;transition:opacity 1.3s ease-out .25s,translate 1.4s var(--mo-ease) .25s}
 html.mo .black .mo-sub{transition-delay:.6s}
 /* record doc: typewriter + stamp */
-html.mo .rec .mo-ch{opacity:0}
-html.mo .rec .mo-ch.on{opacity:1}
 html.mo .rec.doc::after{opacity:0;scale:1.8}
 html.mo .rec.doc.stamp::after{opacity:.8;scale:1;transition:opacity .2s,scale .35s cubic-bezier(.3,1.4,.5,1)}
 html.mo .rec.doc::before{opacity:0}
@@ -147,7 +147,7 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
 (function(){
   var d=document,R=d.documentElement;
   var ok='IntersectionObserver' in window && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-  if(ok)R.classList.add('mo');
+  if(ok)R.classList.add('mo');if('IntersectionObserver' in window)R.classList.add('tw');
   function each(s,f,root){Array.prototype.forEach.call((root||d).querySelectorAll(s),f)}
   function sub(el){
     if(!el||el.querySelector('.mo-sub')||!el.textContent.trim())return;
@@ -172,7 +172,7 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
   }
   function type(el){
     var chars=el._moChars||[],n=chars.length,i=0;
-    var step=Math.max(14,Math.min(42,2400/Math.max(n,1)));
+    var step=Math.max(45,Math.min(80,5000/Math.max(n,1)));
     var t0=null;
     function tick(ts){
       if(t0===null)t0=ts;
@@ -193,7 +193,7 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
   }
   function onIn(el){
     el.classList.add('in');
-    if(el.classList.contains('rec')&&el._moChars)type(el);
+    
     if(el.classList.contains('mo-draw'))setTimeout(function(){
       el.classList.add('mo-done');el.classList.remove('mo-draw');
       each('.mo-e',function(e){e.remove()},el);
@@ -202,15 +202,19 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
   function setup(){
     var bar=d.getElementById('topbar'),tm=0;
     if(bar)addEventListener('scroll',function(){bar.classList.add('mo-scr');clearTimeout(tm);tm=setTimeout(function(){bar.classList.remove('mo-scr')},700)},{passive:true});
+    if('IntersectionObserver' in window){
+      each('.rec',function(r){r._moHTML=r.innerHTML;r._moChars=split(r)});
+      var tio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){tio.unobserve(e.target);e.target.classList.add('in');type(e.target)}})},{threshold:.6});
+      each('.rec',function(r){tio.observe(r)});
+    }
     if(!ok)return;
     each('.cast li',function(li,i){li.style.setProperty('--i',Math.min(i,8))});
     each('.p',function(p){each('.cap,.bub,.hum,.sfx',function(c,i){c.style.setProperty('--i',Math.min(i,5))},p)});
     each('.gap,.black',sub);
-    each('.rec',function(r){r._moHTML=r.innerHTML;r._moChars=split(r)});
     each('.scene',function(sc){edges(sc);each(':scope>p',function(p,i){p.style.setProperty('--i',Math.min(i,6))},sc)});
     each('.fi-ph',bars);
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);onIn(e.target)}})},{rootMargin:'0px 0px -10% 0px',threshold:0});
-    each('.head,.cast,.p,.gap,.black,.rec,.scene,.fi-card:not(.fi-pop),.fin,.epnav,footer.end',function(el){io.observe(el)});
+    each('.head,.cast,.p,.gap,.black,.rec:not(.doc),.scene,.fi-card:not(.fi-pop),.fin,.epnav,footer.end',function(el){io.observe(el)});
   }
   if(d.readyState==='loading')d.addEventListener('DOMContentLoaded',setup);else setup();
 })();

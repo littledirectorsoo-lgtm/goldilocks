@@ -152,7 +152,7 @@ html.mo .pane:not([hidden]){animation:mo-xf .4s ease-out both}
 (function(){
   var d=document,R=d.documentElement;
   var ok='IntersectionObserver' in window && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-  if(ok)R.classList.add('mo');
+  if(ok)R.classList.add('mo');if('IntersectionObserver' in window)R.classList.add('tw');
   function each(s,f,root){Array.prototype.forEach.call((root||d).querySelectorAll(s),f)}
   function setup(){
     if(!ok)return;
