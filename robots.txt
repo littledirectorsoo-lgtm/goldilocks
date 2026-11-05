@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-Disallow: /gptkit/
 Sitemap: https://littledirectorsoo-lgtm.github.io/goldilocks/sitemap.xml
