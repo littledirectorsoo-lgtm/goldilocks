@@ -51,6 +51,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
 .tabs button{flex:1;padding:12px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--mute);font:inherit;cursor:pointer}
 .tabs button.on{border-color:var(--seat);color:var(--fg)}
 #busy{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,9,8,.78);padding:0 24px}
+#busy[hidden],#intro[hidden],#sndHint[hidden],#snd[hidden]{display:none!important}
 #busy .box{width:100%;max-width:360px;text-align:center}
 #busy b{display:block;font-size:18px;margin-bottom:6px;color:var(--fg)}
 #busy small{display:block;color:var(--mute);margin-bottom:16px}

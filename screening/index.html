@@ -95,6 +95,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--seat);outline-of
 #sndHint{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:41;padding:10px 16px;border-radius:999px;background:rgba(226,103,43,.95);color:#1a0d05;font:700 14px var(--sans);white-space:nowrap;pointer-events:none}
 #snd{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:40;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:rgba(15,14,13,.85);color:var(--fg);font:700 12px var(--mono);cursor:pointer}
 #busy{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,9,8,.78);padding:0 24px}
+#busy[hidden],#intro[hidden],#sndHint[hidden],#snd[hidden]{display:none!important}
 #busy .box{width:100%;max-width:360px;text-align:center}
 #busy b{display:block;font-size:18px;margin-bottom:6px;color:var(--fg)}
 #busy small{display:block;color:var(--mute);margin-bottom:16px}
@@ -224,6 +225,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <a class="btn" id="ticketSave" download="KJF_test_screening_ticket.png" hidden style="text-decoration:none;text-align:center">티켓 이미지 저장</a>
     <p class="sub" id="ticketHint" style="font-size:13px" hidden>저장이 안 되면 티켓 이미지를 길게 눌러 '사진에 저장'을 눌러 주세요.</p>
     <div class="msg info">11월 21일(토) 오후 6시 40분까지 라이카시네마로 와 주세요. 아래 티켓 이미지를 저장해 두시면 편합니다. 상영이 끝나면 관람 후 설문 링크를 드립니다.</div>
+    <button class="btn ghost" type="button" id="toHome">처음 화면으로</button>
     <div class="world">
       <div class="eyebrow">WHILE YOU WAIT</div>
       <b>상영회 전에 세계관을 먼저 만나 보세요</b>
@@ -298,13 +300,27 @@ function drawMap(){
     m.appendChild(row);
   });
 }
-function go(n){
+let cur = 1;
+function show(n){
+  cur = n;
   [1,2,3,4].forEach(i => { $("step"+i).hidden = i !== n; $("s"+i).className = i <= n ? "on" : ""; });
-  window.scrollTo({top: document.querySelector(".steps").offsetTop - 10, behavior: "smooth"});
+  if (n !== 1 && $("stepC")) $("stepC").hidden = true;
+  if (n === 1) { $("step1").hidden = false; load(); }
+  window.scrollTo({top: n === 1 ? 0 : document.querySelector(".steps").offsetTop - 10, behavior: "smooth"});
 }
+/* 휴대폰 뒤로 가기 = 이전 단계 (사이트를 나가지 않음). 완료 화면에서는 처음으로 */
+function go(n){ show(n); try { history.pushState({step: n}, ""); } catch(e) {} }
+try { history.replaceState({step: 1}, ""); } catch(e) {}
+addEventListener("popstate", e => {
+  const s = (e.state && e.state.step) || 1;
+  if (cur === 4) { resetFlow(); try { history.pushState({step: 1}, ""); } catch(x) {} return; }
+  show(s);
+});
+function resetFlow(){ seat = ""; $("toInfo").disabled = true; $("pickTxt").textContent = "좌석을 눌러 주세요"; $("form").reset && $("form").reset(); show(1); }
 $("goPublic").onclick = () => { mode = "public"; load(); go(2); };
 $("goInvite").onclick = () => { mode = "invite"; load(); go(2); };
-$("back2").onclick = () => go(1);
+$("back2").onclick = () => history.back();
+$("toHome").onclick = () => { resetFlow(); try { history.pushState({step: 1}, ""); } catch(e) {} };
 const showC = on => { $("step1").hidden = on; $("stepC").hidden = !on; };
 $("goCancel").onclick = () => { showC(true); $("cMsg").hidden = true; };
 $("cBack").onclick = () => { showC(false); load(); };
@@ -326,7 +342,7 @@ $("toInfo").onclick = () => {
   $("seatInfo").textContent = "선택한 좌석 · " + seat;
   $("formMsg").hidden = true; go(3);
 };
-$("back3").onclick = () => go(2);
+$("back3").onclick = () => history.back();
 
 $("form").addEventListener("submit", async e => {
   e.preventDefault();
