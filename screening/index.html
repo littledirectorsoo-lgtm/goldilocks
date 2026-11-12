@@ -334,9 +334,11 @@ $("form").addEventListener("submit", async e => {
   /* 1) 열자마자 재생 시도 (데스크톱·일부 앱은 바로 나옴) */
   bgm.play().then(() => { fadeTo(.55, 2500); btn.hidden = false; }).catch(() => { btn.textContent = "♪ OFF"; btn.hidden = false; });
   /* 2) 막히면 화면 어디든 첫 터치·스크롤 터치·키 입력 때 바로 시작 */
-  const first = e => { if (e.target === btn) return; if (!muted && (bgm.paused || bgm.volume < .05)) on();
-    ["pointerdown","touchend","keydown","click"].forEach(t => removeEventListener(t, first, true)); };
-  ["pointerdown","touchend","keydown","click"].forEach(t => addEventListener(t, first, true));
+  const first = e => { if (e.target === btn || muted) return;
+    if (!bgm.paused && bgm.volume > .05) return done();
+    bgm.play().then(() => { fadeTo(.55, 2000); btn.textContent = "♪ ON"; btn.setAttribute("aria-label", "음악 끄기"); done(); }).catch(() => {}); };
+  const done = () => ["pointerdown","touchstart","touchend","keydown","click"].forEach(t => removeEventListener(t, first, true));
+  ["pointerdown","touchstart","touchend","keydown","click"].forEach(t => addEventListener(t, first, {capture:true, passive:true}));
   /* 포스터 화면은 2.5초 뒤 자동으로 사라짐 (눌러도 바로 넘어감) */
   setTimeout(close, 2500); $("intro").addEventListener("click", close);
   btn.onclick = () => { if (bgm.paused || bgm.volume < .05) { muted = false; on(); } else { muted = true; off(); } };
