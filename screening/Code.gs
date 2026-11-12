@@ -142,6 +142,14 @@ function doPost(e) {
       return out_({ ok: true });
     }
 
+    if (d.type === 'cancel' && d.name && !d.no) {
+      const me = invites_().find(i => norm_(i.name) === norm_(d.name));
+      if (!me) return out_({ ok: false, code: 'noinvite', msg: '초대 명단에서 이름을 찾지 못했습니다.' });
+      if (!me.seat) return out_({ ok: false, code: 'already', msg: '선택된 초대석이 없습니다.' });
+      ss.getSheetByName(SHEET_INVITE).getRange(me.row, 2, 1, 2).setValues([['', '']]);
+      notify_('초대석 취소 · ' + me.seat + ' ' + me.name, ['초대 손님: ' + me.name, '좌석 ' + me.seat + ' 이(가) 비워졌습니다.']);
+      return out_({ ok: true, seat: me.seat });
+    }
     if (d.type === 'cancel') {
       const no = String(d.no || '').trim().toUpperCase(), phone = digits_(d.phone);
       const r = bookRows_().find(x => x.no === no && x.phone === phone);
