@@ -108,8 +108,8 @@ html.lock main,html.lock footer{visibility:hidden}
 #fm .sheet{width:100%;max-width:560px;max-height:92dvh;overflow-y:auto;background:var(--panel);border-radius:18px 18px 0 0;padding:0 0 calc(20px + env(safe-area-inset-bottom,0px))}
 #fm .vid{position:relative;aspect-ratio:16/9;background:#000 center/cover no-repeat;border-radius:18px 18px 0 0;overflow:hidden}
 #fm .vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-#fm .vid .pl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border:0;background:linear-gradient(transparent,rgba(0,0,0,.45));color:#fff;font:700 15px var(--sans);cursor:pointer;gap:8px}
-#fm .vid .pl b{width:58px;height:58px;border-radius:50%;background:var(--seat);color:#1a0d05;display:flex;align-items:center;justify-content:center;font-size:20px}
+#fm .vid .pl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border:0;background:rgba(0,0,0,.45);color:#fff;font:700 15px var(--sans);text-shadow:0 1px 6px rgba(0,0,0,.8);cursor:pointer;gap:10px;padding:0}
+#fm .vid .pl b{flex:none;width:58px;height:58px;border-radius:50%;background:var(--seat);color:#1a0d05;display:flex;align-items:center;justify-content:center}#fm .vid .pl b svg{display:block;margin-left:3px}#fm .vid .pl span{line-height:1}
 #fm .x{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer}
 #fm .bd{padding:16px 20px 0;display:grid;gap:10px}
 #fm .en{font:12px var(--mono);letter-spacing:.12em;color:var(--seat);text-transform:uppercase}
@@ -165,7 +165,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
   </div>
 </div>
 <div id="fm" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="fT">
-  <div class="vid" id="fVid"><button type="button" class="x" id="fX" aria-label="닫기">✕</button><button type="button" class="pl" id="fPlay"><b>▶</b><span id="fPl">예고편 보기</span></button></div>
+  <div class="vid" id="fVid"><button type="button" class="x" id="fX" aria-label="닫기">✕</button><button type="button" class="pl" id="fPlay"><b><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></b><span id="fPl">예고편 보기</span></button></div>
   <div class="bd"><span class="en" id="fEn"></span><h3 id="fT"></h3><span class="mt" id="fMt"></span><p id="fSyn"></p><span class="cr" id="fCr"></span>
   <a class="btn ghost wt" id="fWt" href="#" target="_blank" rel="noopener"></a></div>
 </div></div>
