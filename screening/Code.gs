@@ -85,6 +85,14 @@ const norm_ = s => String(s || '').replace(/\s/g, '').replace(/(조감독님|감
 const clean_ = (s, max) => { let t = String(s == null ? '' : s).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max || 300); if (/^[=+\-@]/.test(t)) t = "'" + t; return t; };
 const validSeat_ = s => { const m = /^([A-Z])(\d{1,2})$/.exec(s); return !!m && ROWS[m[1]] && +m[2] >= 1 && +m[2] <= ROWS[m[1]]; };
 const validPhone_ = p => /^010\d{8}$/.test(p);
+const NOTIFY_TO = 'littledirectorsoo@gmail.com';
+function notify_(subject, lines) {
+  try {
+    const st = status_();
+    MailApp.sendEmail(NOTIFY_TO, '[스크리닝] ' + subject, lines.concat(['', '남은 일반석 ' + st.publicLeft + '석 · 초대 미선택 ' + st.invitePending + '명', 'https://docs.google.com/spreadsheets/d/' + SpreadsheetApp.getActive().getId()]).join('\n'));
+  } catch (e) {}
+}
+function testNotify() { notify_('알림 시험', ['예매 알림이 이렇게 옵니다.']); }
 const out_ = o => ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
 const newNo_ = () => { const ex = bookRows_().map(r => r.no); let no; do { no = 'KJF-' + String(Math.floor(1000 + Math.random() * 9000)); } while (ex.indexOf(no) >= 0); return no; };
 
@@ -139,6 +147,7 @@ function doPost(e) {
       if (!r) return out_({ ok: false, code: 'nofind', msg: '예매번호와 연락처가 맞는 예매를 찾지 못했습니다.' });
       if (r.cancel) return out_({ ok: false, code: 'already', msg: '이미 취소된 예매입니다.' });
       ss.getSheetByName(SHEET_BOOK).getRange(r.row, 10).setValue('관객 취소 ' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'MM/dd HH:mm'));
+      notify_('예매 취소 · ' + r.seat + ' ' + r.name, ['취소: ' + r.name + ' (' + r.no + ')', '좌석 ' + r.seat + ' 이(가) 다시 열렸습니다.']);
       return out_({ ok: true, seat: r.seat });
     }
 
@@ -152,6 +161,7 @@ function doPost(e) {
       const st = status_(me.seat);
       if (st.taken.indexOf(seat) >= 0) return out_({ ok: false, code: 'taken', msg: '방금 다른 분이 고른 좌석입니다. 다른 좌석을 골라 주세요.', taken: status_().taken });
       ss.getSheetByName(SHEET_INVITE).getRange(me.row, 2, 1, 2).setValues([[seat, new Date()]]);
+      notify_('초대석 ' + (me.seat && me.seat !== seat ? '변경' : '선택') + ' · ' + seat + ' ' + me.name, ['초대 손님: ' + me.name, '좌석: ' + (me.seat && me.seat !== seat ? me.seat + ' → ' : '') + seat]);
       return out_({ ok: true, seat: seat, name: me.name, no: '초대석', changed: me.seat && me.seat !== seat ? me.seat : '' });
     }
 
@@ -166,10 +176,12 @@ function doPost(e) {
       const sh = ss.getSheetByName(SHEET_BOOK);
       if (mine) {
         sh.getRange(mine.row, 4).setValue(seat);
+        notify_('좌석 변경 · ' + seat + ' ' + mine.name, ['예매자: ' + mine.name + ' (' + mine.no + ')', '좌석: ' + mine.seat + ' → ' + seat]);
         return out_({ ok: true, seat: seat, name: mine.name, no: mine.no, changed: mine.seat !== seat ? mine.seat : '' });
       }
       if (st.publicLeft <= 0) return out_({ ok: false, code: 'soldout', msg: '선착순 좌석이 모두 찼습니다. 취소석이 생기면 다시 열립니다.' });
       const no = newNo_();
+      notify_('새 예매 · ' + seat + ' ' + name, ['이름: ' + name, '좌석: ' + seat, '예매번호: ' + no, '알게 된 경로: ' + clean_(d.from, 40)]);
       sh.appendRow([no, new Date(), '일반', seat, name, phone.replace(/^(\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3'), clean_(d.from, 40), clean_(d.expect), '예', '']);
       return out_({ ok: true, seat: seat, name: name, no: no });
     }
