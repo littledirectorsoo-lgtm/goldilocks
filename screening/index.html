@@ -101,8 +101,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
   <div class="in">
     <div class="eyebrow">A KIMJUNGSOO FILM · TEST SCREENING</div>
     <p>11.21 SAT 19:00 · 라이카시네마 2관</p>
-    <button type="button" id="enter">입장하기</button>
-    <small>소리와 함께 시작됩니다</small>
+    <small>화면 어디든 누르면 음악이 함께 시작됩니다</small>
   </div>
 </div>
 <button type="button" id="snd" aria-label="음악 끄기" hidden>♪ ON</button>
@@ -330,8 +329,17 @@ $("form").addEventListener("submit", async e => {
   const fadeTo = (v, ms) => { const s = bgm.volume, t0 = performance.now(); const f = t => { const k = Math.min(1, (t - t0) / ms); bgm.volume = s + (v - s) * k; if (k < 1) requestAnimationFrame(f); else if (v === 0) bgm.pause(); }; requestAnimationFrame(f); };
   const on = () => { bgm.play().then(() => fadeTo(.55, 2500)).catch(() => {}); btn.textContent = "♪ ON"; btn.setAttribute("aria-label", "음악 끄기"); };
   const off = () => { fadeTo(0, 600); btn.textContent = "♪ OFF"; btn.setAttribute("aria-label", "음악 켜기"); };
-  $("enter").onclick = () => { on(); $("intro").classList.add("out"); btn.hidden = false; setTimeout(() => $("intro").hidden = true, 1000); };
-  btn.onclick = () => bgm.paused || bgm.volume < .05 ? on() : off();
+  let muted = false;
+  const close = () => { if ($("intro").hidden) return; $("intro").classList.add("out"); btn.hidden = false; setTimeout(() => $("intro").hidden = true, 1000); };
+  /* 1) 열자마자 재생 시도 (데스크톱·일부 앱은 바로 나옴) */
+  bgm.play().then(() => { fadeTo(.55, 2500); btn.hidden = false; }).catch(() => { btn.textContent = "♪ OFF"; btn.hidden = false; });
+  /* 2) 막히면 화면 어디든 첫 터치·스크롤 터치·키 입력 때 바로 시작 */
+  const first = e => { if (e.target === btn) return; if (!muted && (bgm.paused || bgm.volume < .05)) on();
+    ["pointerdown","touchend","keydown","click"].forEach(t => removeEventListener(t, first, true)); };
+  ["pointerdown","touchend","keydown","click"].forEach(t => addEventListener(t, first, true));
+  /* 포스터 화면은 2.5초 뒤 자동으로 사라짐 (눌러도 바로 넘어감) */
+  setTimeout(close, 2500); $("intro").addEventListener("click", close);
+  btn.onclick = () => { if (bgm.paused || bgm.volume < .05) { muted = false; on(); } else { muted = true; off(); } };
 })();
 
 /* 예매 완료 티켓 이미지 (포스터 + 좌석 정보) */
