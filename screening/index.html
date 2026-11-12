@@ -89,6 +89,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--seat);outline-of
 #intro small{display:block;margin-top:10px;color:var(--mute)}
 #intro.out{opacity:0;pointer-events:none}
 @media (prefers-reduced-motion:no-preference){#intro{transition:opacity .9s ease}}
+#sndHint{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:41;padding:10px 16px;border-radius:999px;background:rgba(226,103,43,.95);color:#1a0d05;font:700 14px var(--sans);white-space:nowrap;pointer-events:none}
 #snd{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:40;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:rgba(15,14,13,.85);color:var(--fg);font:700 12px var(--mono);cursor:pointer}
 .demo{margin-bottom:16px;padding:10px 12px;border:1px dashed var(--seat);border-radius:10px;font-size:13px;color:var(--seat)}
 footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
@@ -104,6 +105,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <small>화면 어디든 누르면 음악이 함께 시작됩니다</small>
   </div>
 </div>
+<div id="sndHint" hidden>🔊 화면을 톡 누르면 음악이 나옵니다</div>
 <button type="button" id="snd" aria-label="음악 끄기" hidden>♪ ON</button>
 <audio id="bgm" src="../audio/music/M1.mp3" loop preload="auto"></audio>
 <main class="wrap">
@@ -332,12 +334,13 @@ $("form").addEventListener("submit", async e => {
   let muted = false;
   const close = () => { if ($("intro").hidden) return; $("intro").classList.add("out"); btn.hidden = false; setTimeout(() => $("intro").hidden = true, 1000); };
   /* 1) 열자마자 재생 시도 (데스크톱·일부 앱은 바로 나옴) */
-  bgm.play().then(() => { fadeTo(.55, 2500); btn.hidden = false; }).catch(() => { btn.textContent = "♪ OFF"; btn.hidden = false; });
+  bgm.play().then(() => { fadeTo(.55, 2500); btn.hidden = false; }).catch(() => { btn.textContent = "♪ OFF"; btn.hidden = false; $("sndHint").hidden = false; });
   /* 2) 막히면 화면 어디든 첫 터치·스크롤 터치·키 입력 때 바로 시작 */
   const first = e => { if (e.target === btn || muted) return;
     if (!bgm.paused && bgm.volume > .05) return done();
     bgm.play().then(() => { fadeTo(.55, 2000); btn.textContent = "♪ ON"; btn.setAttribute("aria-label", "음악 끄기"); done(); }).catch(() => {}); };
-  const done = () => ["pointerdown","touchstart","touchend","keydown","click"].forEach(t => removeEventListener(t, first, true));
+  const done = () => { $("sndHint").hidden = true; doneL(); };
+  const doneL = () => ["pointerdown","touchstart","touchend","keydown","click"].forEach(t => removeEventListener(t, first, true));
   ["pointerdown","touchstart","touchend","keydown","click"].forEach(t => addEventListener(t, first, {capture:true, passive:true}));
   /* 포스터 화면은 2.5초 뒤 자동으로 사라짐 (눌러도 바로 넘어감) */
   setTimeout(close, 2500); $("intro").addEventListener("click", close);
