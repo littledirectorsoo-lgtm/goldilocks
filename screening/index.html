@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>테스트 스크리닝 예매</title>
+<meta name="description" content="김정수필름 비공개 테스트 스크리닝 — 11월 21일(토) 오후 7시, 라이카시네마. 26석 선착순.">
+<meta property="og:title" content="김정수필름 테스트 스크리닝 · 11.21 SAT 19:00">
+<meta property="og:description" content="골디락스존 세계관 단편 3편, 라이카시네마 26석 선착순 예매">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* 극장 로비: 어두운 상영관 + 주황 의자. 한 단(좁은 컬럼) 단계형 예매 */
+:root{
+  --bg:#0f0e0d; --panel:#1a1816; --line:#2c2925; --fg:#efe9e1; --mute:#9a938a;
+  --seat:#e2672b; --seat-hi:#ff8a4c; --taken:#3a3631; --mine:#f4d35e; --err:#ff6b6b; --ok:#7bd88f;
+  --sans:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --mono:"Space Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;line-height:1.6}
+.wrap{max-width:560px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--seat);text-transform:uppercase}
+h1{font-size:30px;line-height:1.25;margin:6px 0 4px;font-weight:900;text-wrap:balance}
+.sub{color:var(--mute);margin:0}
+.ticket{margin:22px 0;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
+.ticket .row{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:12px 16px;border-top:1px dashed var(--line)}
+.ticket .row:first-child{border-top:0}
+.ticket .k{font-family:var(--mono);font-size:12px;color:var(--mute);letter-spacing:.08em;padding-top:2px}
+.lineup{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.lineup li{display:flex;gap:8px}
+.lineup b{font-family:var(--mono);color:var(--seat);font-weight:700}
+.lineup small{color:var(--mute)}
+.steps{display:flex;gap:6px;margin:26px 0 14px;font-family:var(--mono);font-size:12px;color:var(--mute)}
+.steps span{flex:1;padding-top:8px;border-top:2px solid var(--line)}
+.steps span.on{color:var(--fg);border-color:var(--seat)}
+section[hidden]{display:none}
+h2{font-size:20px;margin:0 0 12px}
+.choice{display:grid;gap:10px}
+.choice button{all:unset;cursor:pointer;display:block;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.choice button:hover,.choice button:focus-visible{border-color:var(--seat)}
+.choice b{display:block;font-size:17px}
+.choice small{color:var(--mute)}
+.left{font-family:var(--mono);color:var(--seat)}
+label{display:block;font-size:14px;color:var(--mute);margin:14px 0 6px}
+input,select,textarea{width:100%;font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--seat);outline-offset:1px}
+.btn{display:block;width:100%;margin-top:20px;padding:15px;border:0;border-radius:12px;font:inherit;font-weight:700;font-size:17px;background:var(--seat);color:#1a0d05;cursor:pointer}
+.btn:disabled{background:var(--taken);color:var(--mute);cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--mute);border:1px solid var(--line);font-weight:500}
+.screen{margin:6px auto 18px;width:86%;height:28px;border-top:3px solid var(--fg);border-radius:50%/100% 100% 0 0;opacity:.55;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.3em;padding-top:6px;color:var(--mute)}
+.map{display:grid;gap:8px;justify-content:center}
+.srow{display:flex;gap:6px;align-items:center;justify-content:center}
+.srow .rl{width:18px;font-family:var(--mono);font-size:12px;color:var(--mute);text-align:center}
+.seat{width:34px;height:34px;border:0;border-radius:8px 8px 4px 4px;background:var(--seat);color:#1a0d05;font:700 11px var(--mono);cursor:pointer}
+.seat:hover{background:var(--seat-hi)}
+.seat:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.seat.taken{background:var(--taken);color:#5d574f;cursor:not-allowed}
+.seat.mine{background:var(--mine)}
+.gap{width:14px}
+.legend{display:flex;gap:16px;justify-content:center;margin-top:14px;font-size:13px;color:var(--mute)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.pick{margin-top:14px;text-align:center;font-family:var(--mono)}
+.msg{margin-top:14px;padding:12px;border-radius:10px;font-size:14px}
+.msg.err{background:#3a1a1a;color:var(--err)}
+.msg.info{background:var(--panel);color:var(--mute);border:1px solid var(--line)}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:14px;color:var(--mute)}
+.check input{width:20px;height:20px;margin-top:2px;flex:none}
+.done{text-align:center}
+.done .big{font-size:56px;font-weight:900;font-family:var(--mono);color:var(--mine);line-height:1.1;margin:12px 0}
+.done .no{font-family:var(--mono);color:var(--mute)}
+.demo{margin-bottom:16px;padding:10px 12px;border:1px dashed var(--seat);border-radius:10px;font-size:13px;color:var(--seat)}
+footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:no-preference){.seat{transition:background .12s}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div id="demo" class="demo" hidden>시트 연결 전 미리보기입니다. 여기서 한 예매는 저장되지 않습니다.</div>
+  <div class="eyebrow">A KIMJUNGSOO FILM · PRIVATE TEST SCREENING</div>
+  <h1>골디락스존 세계관<br>단편 3편 테스트 스크리닝</h1>
+  <p class="sub">공개 전 처음으로 관객과 함께 보는 자리입니다. 끝나고 짧은 설문을 부탁드립니다.</p>
+
+  <div class="ticket">
+    <div class="row"><div class="k">DATE</div><div>2026. 11. 21 (토) 오후 7시</div></div>
+    <div class="row"><div class="k">PLACE</div><div>라이카시네마 · 26석 상영관</div></div>
+    <div class="row"><div class="k">LINEUP</div>
+      <ol class="lineup">
+        <li><b>01</b><span>골디락스존 프로젝트 <small>17분 · SF 스릴러</small></span></li>
+        <li><b>02</b><span>잡아먹히거나 먼저 씹어라 <small>7분 · 파운드푸티지</small></span></li>
+        <li><b>03</b><span>기름도둑 <small>12분 · SF 디스토피아</small></span></li>
+      </ol>
+    </div>
+    <div class="row"><div class="k">PRICE</div><div>무료 · 1인 1매</div></div>
+  </div>
+
+  <div class="steps" aria-hidden="true"><span id="s1" class="on">1 구분</span><span id="s2">2 좌석</span><span id="s3">3 정보</span><span id="s4">4 완료</span></div>
+
+  <!-- 1. 구분 -->
+  <section id="step1">
+    <h2>어떻게 오시나요?</h2>
+    <div class="choice">
+      <button type="button" id="goPublic"><b>일반 예매 (선착순)</b><small>남은 좌석 <span class="left" id="leftN">–</span>석 · 이름·연락처와 짧은 사전 질문</small></button>
+      <button type="button" id="goInvite"><b>초대받았어요</b><small>배우·스태프 · 이름만 확인하고 좌석을 고릅니다</small></button>
+    </div>
+    <div id="closedMsg" class="msg err" hidden></div>
+  </section>
+
+  <!-- 2. 좌석 -->
+  <section id="step2" hidden>
+    <h2>좌석을 골라 주세요</h2>
+    <div class="screen">SCREEN</div>
+    <div class="map" id="map" role="group" aria-label="좌석 배치도"></div>
+    <div class="legend"><span><i style="background:var(--seat)"></i>선택 가능</span><span><i style="background:var(--mine)"></i>내 좌석</span><span><i style="background:var(--taken)"></i>선택 불가</span></div>
+    <div class="pick" id="pickTxt">좌석을 눌러 주세요</div>
+    <div id="seatMsg" class="msg err" hidden></div>
+    <button class="btn" id="toInfo" disabled>다음</button>
+    <button class="btn ghost" id="back2">이전</button>
+  </section>
+
+  <!-- 3. 정보 -->
+  <section id="step3" hidden>
+    <form id="form" novalidate>
+      <h2 id="infoTitle">예매자 정보</h2>
+      <label for="name">이름</label>
+      <input id="name" autocomplete="name" required placeholder="홍길동">
+      <div id="pubFields">
+        <label for="phone">연락처</label>
+        <input id="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="010-0000-0000">
+        <label for="from">이 상영회를 어떻게 알게 되셨나요?</label>
+        <select id="from"><option value="">선택해 주세요</option><option>지인 소개</option><option>인스타그램</option><option>유튜브</option><option>웹툰 사이트</option><option>기타</option></select>
+        <label for="expect">어떤 점이 가장 기대되세요? (선택)</label>
+        <textarea id="expect" rows="2" placeholder="예: SF 단편을 극장에서 보는 것"></textarea>
+        <label class="check"><input type="checkbox" id="agree"> <span>상영 안내 연락을 위해 이름·연락처를 수집하고, 상영회가 끝나면 지우는 데 동의합니다.</span></label>
+      </div>
+      <div class="msg info" id="seatInfo"></div>
+      <div id="formMsg" class="msg err" hidden></div>
+      <button class="btn" id="submit" type="submit">예매하기</button>
+      <button class="btn ghost" id="back3" type="button">좌석 다시 고르기</button>
+    </form>
+  </section>
+
+  <!-- 4. 완료 -->
+  <section id="step4" hidden class="done">
+    <div class="eyebrow">CONFIRMED</div>
+    <div class="big" id="doneSeat">B4</div>
+    <p id="doneName"></p>
+    <p class="no" id="doneNo"></p>
+    <div class="msg info">11월 21일(토) 오후 6시 40분까지 라이카시네마로 와 주세요. 이 화면을 캡처해 두시면 편합니다. 상영이 끝나면 관람 후 설문 링크를 드립니다.</div>
+  </section>
+
+  <footer>문의 · 김정수필름 littledirectorsoo@gmail.com<br>비공개 테스트 상영입니다. 상영 중 촬영·녹화는 삼가 주세요.</footer>
+</main>
+
+<script>
+/* 감독님 구글 Apps Script 웹 앱 주소를 배포 후 여기에 넣습니다 */
+const API = "";
+/* 상영관 좌석 배치 (행: 좌석 수, 통로 위치). 실제 배치가 다르면 여기만 고칩니다 */
+const LAYOUT = [
+  {row:"A", n:6, aisle:3},
+  {row:"B", n:6, aisle:3},
+  {row:"C", n:7, aisle:3},
+  {row:"D", n:7, aisle:3}
+];
+
+const $ = id => document.getElementById(id);
+let mode = "public", seat = "", state = {open:true, taken:[], publicLeft:13};
+const demo = !API;
+if (demo) $("demo").hidden = false;
+
+async function load(){
+  if (demo) { render(); return; }
+  try { const r = await fetch(API, {cache:"no-store"}); state = await r.json(); }
+  catch(e){ /* 네트워크 오류 시 마지막 상태 유지 */ }
+  render();
+}
+function render(){
+  $("leftN").textContent = state.publicLeft;
+  const closed = !state.open;
+  $("closedMsg").hidden = !closed && state.publicLeft > 0;
+  if (closed) $("closedMsg").textContent = "예매가 마감되었습니다.";
+  else if (state.publicLeft <= 0) $("closedMsg").textContent = "선착순 좌석이 모두 찼습니다. 초대받으신 분은 아래 '초대받았어요'를 눌러 주세요.";
+  $("goPublic").disabled = closed || state.publicLeft <= 0;
+  $("goPublic").style.opacity = $("goPublic").disabled ? .45 : 1;
+  drawMap();
+}
+function drawMap(){
+  const m = $("map"); m.innerHTML = "";
+  LAYOUT.forEach(r => {
+    const row = document.createElement("div"); row.className = "srow";
+    const l = document.createElement("span"); l.className = "rl"; l.textContent = r.row; row.appendChild(l);
+    for (let i = 1; i <= r.n; i++){
+      if (i === r.aisle + 1) { const g = document.createElement("span"); g.className = "gap"; row.appendChild(g); }
+      const id = r.row + i, b = document.createElement("button");
+      b.type = "button"; b.className = "seat"; b.textContent = i; b.setAttribute("aria-label", id + " 좌석");
+      const t = state.taken.includes(id);
+      if (t) { b.classList.add("taken"); b.disabled = true; }
+      if (id === seat) b.classList.add("mine");
+      b.onclick = () => { seat = id; $("pickTxt").textContent = "선택한 좌석 · " + id; $("toInfo").disabled = false; $("seatMsg").hidden = true; drawMap(); };
+      row.appendChild(b);
+    }
+    const r2 = document.createElement("span"); r2.className = "rl"; r2.textContent = r.row; row.appendChild(r2);
+    m.appendChild(row);
+  });
+}
+function go(n){
+  [1,2,3,4].forEach(i => { $("step"+i).hidden = i !== n; $("s"+i).className = i <= n ? "on" : ""; });
+  window.scrollTo({top: document.querySelector(".steps").offsetTop - 10, behavior: "smooth"});
+}
+$("goPublic").onclick = () => { mode = "public"; load(); go(2); };
+$("goInvite").onclick = () => { mode = "invite"; load(); go(2); };
+$("back2").onclick = () => go(1);
+$("toInfo").onclick = () => {
+  $("pubFields").hidden = mode !== "public";
+  $("infoTitle").textContent = mode === "public" ? "예매자 정보" : "초대 확인";
+  $("submit").textContent = mode === "public" ? "예매하기" : "이 좌석으로 확정";
+  $("seatInfo").textContent = "선택한 좌석 · " + seat;
+  $("formMsg").hidden = true; go(3);
+};
+$("back3").onclick = () => go(2);
+
+$("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const err = t => { $("formMsg").textContent = t; $("formMsg").hidden = false; };
+  const name = $("name").value.trim();
+  if (!name) return err("이름을 적어 주세요.");
+  const body = {type: mode === "public" ? "book" : "invite", seat, name};
+  if (mode === "public"){
+    body.phone = $("phone").value.trim(); body.from = $("from").value; body.expect = $("expect").value.trim(); body.agree = $("agree").checked;
+    if (body.phone.replace(/\D/g,"").length < 10) return err("연락처를 확인해 주세요.");
+    if (!body.agree) return err("개인정보 수집에 동의해 주셔야 예매할 수 있습니다.");
+  }
+  $("submit").disabled = true; $("submit").textContent = "확인 중…";
+  let res;
+  if (demo) res = {ok:true, seat, name, no:"DEMO-"+seat};
+  else {
+    try { const r = await fetch(API, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(body)}); res = await r.json(); }
+    catch(x){ res = {ok:false, msg:"연결이 불안정합니다. 잠시 후 다시 눌러 주세요."}; }
+  }
+  $("submit").disabled = false; $("submit").textContent = mode === "public" ? "예매하기" : "이 좌석으로 확정";
+  if (!res.ok){
+    if (res.code === "taken"){ state.taken = res.taken || state.taken; seat = ""; $("toInfo").disabled = true; $("pickTxt").textContent = "좌석을 눌러 주세요"; drawMap(); go(2); $("seatMsg").textContent = res.msg; $("seatMsg").hidden = false; return; }
+    return err(res.msg || "예매하지 못했습니다.");
+  }
+  $("doneSeat").textContent = res.seat; $("doneName").textContent = res.name + " 님, 예매되었습니다.";
+  $("doneNo").textContent = "예매번호 " + res.no; go(4);
+});
+load(); setInterval(() => { if (!$("step2").hidden) load(); }, 15000);
+</script>
+</body>
+</html>
