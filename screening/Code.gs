@@ -177,3 +177,10 @@ function doPost(e) {
     lock.releaseLock();
   }
 }
+
+/* 상영회 전 초기화: 예매·초대 좌석·설문 응답을 모두 비움 (편집기에서 직접 실행할 때만) */
+function resetAll() {
+  const ss = SpreadsheetApp.getActive();
+  [SHEET_BOOK, SHEET_SURVEY].forEach(n => { const sh = ss.getSheetByName(n); if (sh.getLastRow() > 1) sh.deleteRows(2, sh.getLastRow() - 1); });
+  const inv = ss.getSheetByName(SHEET_INVITE); if (inv.getLastRow() > 1) inv.getRange(2, 2, inv.getLastRow() - 1, 2).clearContent();
+}
