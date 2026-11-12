@@ -103,7 +103,6 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <div class="eyebrow">A KIMJUNGSOO FILM · TEST SCREENING</div>
     <p>11.21 SAT 19:00 · 라이카시네마 2관</p>
     <button type="button" id="enter">입장하기</button>
-    <small>음악과 함께 입장합니다</small>
   </div>
 </div>
 <div id="sndHint" hidden>🔊 화면을 톡 누르면 음악이 나옵니다</div>
@@ -344,7 +343,9 @@ $("form").addEventListener("submit", async e => {
   const doneL = () => ["pointerdown","touchstart","touchend","keydown","click"].forEach(t => removeEventListener(t, first, true));
   ["pointerdown","touchstart","touchend","keydown","click"].forEach(t => addEventListener(t, first, {capture:true, passive:true}));
   /* 포스터 화면은 2.5초 뒤 자동으로 사라짐 (눌러도 바로 넘어감) */
-  $("enter").onclick = () => { muted = false; bgm.play().then(() => { fadeTo(.55, 2000); btn.textContent = "♪ ON"; btn.setAttribute("aria-label", "음악 끄기"); }).catch(() => {}); done(); close(); };
+  try { history.scrollRestoration = "manual"; } catch(e) {}
+  window.scrollTo(0, 0);
+  $("enter").onclick = () => { window.scrollTo(0, 0); document.activeElement && document.activeElement.blur(); muted = false; bgm.play().then(() => { fadeTo(.55, 2000); btn.textContent = "♪ ON"; btn.setAttribute("aria-label", "음악 끄기"); }).catch(() => {}); done(); close(); setTimeout(() => window.scrollTo(0, 0), 50); };
   btn.onclick = () => { if (bgm.paused || bgm.volume < .05) { muted = false; on(); } else { muted = true; off(); } };
 })();
 
