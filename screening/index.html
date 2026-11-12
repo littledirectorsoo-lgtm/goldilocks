@@ -84,7 +84,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
 
   <div class="ticket">
     <div class="row"><div class="k">DATE</div><div>2026. 11. 21 (토) 오후 7시</div></div>
-    <div class="row"><div class="k">PLACE</div><div>라이카시네마 · 26석 상영관</div></div>
+    <div class="row"><div class="k">PLACE</div><div>라이카시네마 2관 · 26석</div></div>
     <div class="row"><div class="k">LINEUP</div>
       <ol class="lineup">
         <li><b>01</b><span>골디락스존 프로젝트 <small>17분 · SF 스릴러</small></span></li>
@@ -158,10 +158,9 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
 const API = "";
 /* 상영관 좌석 배치 (행: 좌석 수, 통로 위치). 실제 배치가 다르면 여기만 고칩니다 */
 const LAYOUT = [
-  {row:"A", n:6, aisle:3},
-  {row:"B", n:6, aisle:3},
-  {row:"C", n:7, aisle:3},
-  {row:"D", n:7, aisle:3}
+  {row:"A", n:8, aisle:4},
+  {row:"B", n:9, aisle:4},
+  {row:"C", n:9, aisle:4}
 ];
 
 const $ = id => document.getElementById(id);
