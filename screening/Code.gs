@@ -48,10 +48,13 @@ function setup() {
 function settings_() {
   const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_SET);
   const v = sh.getRange(2, 2, 4, 1).getValues();
+  const total = Object.keys(ROWS).reduce((a, k) => a + ROWS[k], 0);
+  const blocked = String(v[2][0] || '').split(/[,\s]+/).map(s => s.trim().toUpperCase()).filter(Boolean);
   return {
-    cap: Math.max(0, Number(v[0][0]) || 0),
+    /* 일반 좌석 = 26석 - 초대 인원 - 막아 둔 좌석 (자동) */
+    cap: Math.max(0, total - invites_().length - blocked.length),
     open: String(v[1][0]).trim() !== '아니오',
-    blocked: String(v[2][0] || '').split(/[,\s]+/).map(s => s.trim().toUpperCase()).filter(Boolean),
+    blocked: blocked,
     survey: String(v[3][0]).trim() !== '아니오'
   };
 }
@@ -182,5 +185,6 @@ function doPost(e) {
 function resetAll() {
   const ss = SpreadsheetApp.getActive();
   [SHEET_BOOK, SHEET_SURVEY].forEach(n => { const sh = ss.getSheetByName(n); if (sh.getLastRow() > 1) sh.deleteRows(2, sh.getLastRow() - 1); });
-  const inv = ss.getSheetByName(SHEET_INVITE); if (inv.getLastRow() > 1) inv.getRange(2, 2, inv.getLastRow() - 1, 2).clearContent();
+  /* 초대명단은 그대로 둠 */
+  ss.getSheetByName(SHEET_SET).getRange(2, 1, 1, 3).setValues([['일반 선착순 좌석 수', '자동', '26석 - 초대명단 인원 - 막아 둔 좌석. 초대명단에 이름을 넣고 빼면 저절로 바뀝니다']]);
 }
