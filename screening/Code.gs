@@ -84,7 +84,7 @@ const digits_ = s => String(s || '').replace(/\D/g, '');
 const norm_ = s => String(s || '').replace(/\s/g, '').replace(/(조감독님|감독님|배우님|조감독|감독|배우|님)$/g, '');
 const clean_ = (s, max) => { let t = String(s == null ? '' : s).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max || 300); if (/^[=+\-@]/.test(t)) t = "'" + t; return t; };
 const validSeat_ = s => { const m = /^([A-Z])(\d{1,2})$/.exec(s); return !!m && ROWS[m[1]] && +m[2] >= 1 && +m[2] <= ROWS[m[1]]; };
-const validPhone_ = p => /^01[016789]\d{7,8}$/.test(p);
+const validPhone_ = p => /^010\d{8}$/.test(p);
 const out_ = o => ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
 const newNo_ = () => { const ex = bookRows_().map(r => r.no); let no; do { no = 'KJF-' + String(Math.floor(1000 + Math.random() * 9000)); } while (ex.indexOf(no) >= 0); return no; };
 
@@ -158,7 +158,7 @@ function doPost(e) {
     if (d.type === 'book') {
       const phone = digits_(d.phone), name = clean_(d.name, 40);
       if (!name) return out_({ ok: false, code: 'info', msg: '이름을 적어 주세요.' });
-      if (!validPhone_(phone)) return out_({ ok: false, code: 'info', msg: '휴대폰 번호를 확인해 주세요. (예: 010-1234-5678)' });
+      if (!validPhone_(phone)) return out_({ ok: false, code: 'info', msg: '휴대폰 번호는 010으로 시작하는 11자리로 적어 주세요. (예: 010-1234-5678)' });
       if (!d.agree) return out_({ ok: false, code: 'agree', msg: '개인정보 수집·이용에 동의해 주셔야 예매할 수 있습니다.' });
       const mine = bookRows_().find(r => r.phone === phone && !r.cancel);
       const st = status_(mine ? mine.seat : '');
