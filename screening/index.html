@@ -101,8 +101,8 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
   <section id="step1">
     <h2>어떻게 오시나요?</h2>
     <div class="choice">
-      <button type="button" id="goPublic"><b>일반 예매 (선착순)</b><small>남은 좌석 <span class="left" id="leftN">–</span>석 · 이름·연락처와 짧은 사전 질문</small></button>
-      <button type="button" id="goInvite"><b>초대받았어요</b><small>배우·스태프 · 이름만 확인하고 좌석을 고릅니다</small></button>
+      <button type="button" id="goPublic"><b>일반 예매 (선착순)</b><small>남은 좌석 <span class="left" id="leftN">–</span>석 · 이름·연락처와 짧은 사전 질문 · 같은 연락처로 다시 하면 좌석만 바뀝니다</small></button>
+      <button type="button" id="goInvite"><b>초대받았어요</b><small>배우·스태프 · 이름만 확인하고 좌석을 고릅니다 · 이미 고르셨다면 다시 고르면 좌석이 바뀝니다</small></button>
     </div>
     <div id="closedMsg" class="msg err" hidden></div>
     <button class="btn ghost" type="button" id="goCancel">예매 취소하기</button>
@@ -272,7 +272,8 @@ $("form").addEventListener("submit", async e => {
     if (res.code === "taken"){ state.taken = res.taken || state.taken; seat = ""; $("toInfo").disabled = true; $("pickTxt").textContent = "좌석을 눌러 주세요"; drawMap(); go(2); $("seatMsg").textContent = res.msg; $("seatMsg").hidden = false; return; }
     return err(res.msg || "예매하지 못했습니다.");
   }
-  $("doneSeat").textContent = res.seat; $("doneName").textContent = res.name + " 님, 예매되었습니다.";
+  $("doneSeat").textContent = res.seat;
+  $("doneName").textContent = res.changed ? (res.name + " 님, 좌석을 " + res.changed + "에서 " + res.seat + "(으)로 바꿨습니다.") : (res.name + " 님, 예매되었습니다.");
   $("doneNo").textContent = "예매번호 " + res.no; go(4);
 });
 load(); setInterval(() => { if (!$("step2").hidden) load(); }, 15000);
