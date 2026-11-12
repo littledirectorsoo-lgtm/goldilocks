@@ -105,6 +105,21 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
       <button type="button" id="goInvite"><b>초대받았어요</b><small>배우·스태프 · 이름만 확인하고 좌석을 고릅니다</small></button>
     </div>
     <div id="closedMsg" class="msg err" hidden></div>
+    <button class="btn ghost" type="button" id="goCancel">예매 취소하기</button>
+  </section>
+
+  <!-- 예매 취소 -->
+  <section id="stepC" hidden>
+    <h2>예매 취소</h2>
+    <p class="sub">예매 완료 화면의 예매번호와, 예매할 때 쓴 연락처를 넣어 주세요. 취소한 좌석은 바로 다른 분께 열립니다.</p>
+    <label for="cNo">예매번호</label>
+    <input id="cNo" placeholder="KJF-1121-B4" autocapitalize="characters">
+    <label for="cPhone">연락처</label>
+    <input id="cPhone" type="tel" inputmode="numeric" placeholder="010-0000-0000">
+    <div id="cMsg" class="msg err" hidden></div>
+    <button class="btn" type="button" id="cGo">예매 취소</button>
+    <button class="btn ghost" type="button" id="cBack">돌아가기</button>
+    <p class="sub" style="margin-top:14px">초대받으신 분이 좌석을 바꾸거나 못 오시게 되면 감독에게 직접 알려 주세요.</p>
   </section>
 
   <!-- 2. 좌석 -->
@@ -148,6 +163,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <p id="doneName"></p>
     <p class="no" id="doneNo"></p>
     <div class="msg info">11월 21일(토) 오후 6시 40분까지 라이카시네마로 와 주세요. 이 화면을 캡처해 두시면 편합니다. 상영이 끝나면 관람 후 설문 링크를 드립니다.</div>
+    <div class="msg info">못 오시게 되면 이 페이지 첫 화면의 <b>예매 취소하기</b>에서 예매번호와 연락처로 취소해 주세요. 기다리는 분께 좌석이 넘어갑니다.</div>
   </section>
 
   <footer>문의 · 김정수필름 littledirectorsoo@gmail.com<br>비공개 테스트 상영입니다. 상영 중 촬영·녹화는 삼가 주세요.</footer>
@@ -210,6 +226,20 @@ function go(n){
 $("goPublic").onclick = () => { mode = "public"; load(); go(2); };
 $("goInvite").onclick = () => { mode = "invite"; load(); go(2); };
 $("back2").onclick = () => go(1);
+const showC = on => { $("step1").hidden = on; $("stepC").hidden = !on; };
+$("goCancel").onclick = () => { showC(true); $("cMsg").hidden = true; };
+$("cBack").onclick = () => { showC(false); load(); };
+$("cGo").onclick = async () => {
+  const no = $("cNo").value.trim(), phone = $("cPhone").value.trim(), m = $("cMsg");
+  const say = (t, ok) => { m.textContent = t; m.className = "msg " + (ok ? "info" : "err"); m.hidden = false; };
+  if (!no || phone.replace(/\D/g,"").length < 10) return say("예매번호와 연락처를 확인해 주세요.");
+  $("cGo").disabled = true;
+  let res;
+  if (demo) res = {ok:true, seat:"(미리보기)"};
+  else { try { const r = await fetch(API, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({type:"cancel", no, phone})}); res = await r.json(); } catch(x){ res = {ok:false, msg:"연결이 불안정합니다. 잠시 후 다시 눌러 주세요."}; } }
+  $("cGo").disabled = false;
+  if (res.ok) say(res.seat + " 좌석 예매가 취소되었습니다. 알려 주셔서 감사합니다.", true); else say(res.msg || "취소하지 못했습니다.");
+};
 $("toInfo").onclick = () => {
   $("pubFields").hidden = mode !== "public";
   $("infoTitle").textContent = mode === "public" ? "예매자 정보" : "초대 확인";
