@@ -119,6 +119,17 @@ html.lock main,html.lock footer{visibility:hidden}
 #fm .cr{font-size:13px;color:var(--mute)}
 #fm .wt{display:block;text-align:center;text-decoration:none}
 #fm[hidden]{display:none!important}
+#wm{position:fixed;inset:0;z-index:61;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+#wm .card{position:relative;width:100%;max-width:420px;max-height:90dvh;overflow-y:auto;background:var(--panel);border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#wm img{display:block;width:100%;height:auto;aspect-ratio:1200/630;object-fit:cover}
+#wm .x{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer}
+#wm .bd{padding:18px 20px 20px;display:grid;gap:10px}
+#wm .eyebrow{margin:0}
+#wm b{font-size:19px;text-wrap:balance}
+#wm p{margin:0;color:var(--mute);line-height:1.6}
+#wm .btn{text-decoration:none;text-align:center;margin:4px 0 0}
+#wm[hidden]{display:none!important}
+@media (prefers-reduced-motion:no-preference){#wm .card{animation:wmIn .45s cubic-bezier(.2,.8,.2,1)}@keyframes wmIn{from{transform:translateY(24px) scale(.97);opacity:0}}}
 #stepF[hidden],#fPhoneWrap[hidden],#busy[hidden],#cPub[hidden],#cInv[hidden],#cAsk[hidden],#intro[hidden],#sndHint[hidden],#snd[hidden]{display:none!important}
 #busy .box{width:100%;max-width:360px;text-align:center}
 #busy b{display:block;font-size:18px;margin-bottom:6px;color:var(--fg)}
@@ -157,6 +168,13 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
   <div class="vid" id="fVid"><button type="button" class="x" id="fX" aria-label="닫기">✕</button><button type="button" class="pl" id="fPlay"><b>▶</b><span id="fPl">예고편 보기</span></button></div>
   <div class="bd"><span class="en" id="fEn"></span><h3 id="fT"></h3><span class="mt" id="fMt"></span><p id="fSyn"></p><span class="cr" id="fCr"></span>
   <a class="btn ghost wt" id="fWt" href="#" target="_blank" rel="noopener"></a></div>
+</div></div>
+<div id="wm" hidden><div class="card" role="dialog" aria-modal="true" aria-labelledby="wmT">
+  <img src="../og.jpg" alt="골디락스존 세계관 웹툰" width="1200" height="630">
+  <button type="button" class="x" id="wmX" aria-label="닫기">✕</button>
+  <div class="bd"><div class="eyebrow">WHILE YOU WAIT</div><b id="wmT">예매 완료! 상영회 전에 세계관을 먼저 만나 보세요</b>
+  <p>오늘 볼 세 편은 하나의 세계관으로 이어집니다. 영화 사이사이의 이야기를 웹툰으로 먼저 보고 오시면 상영이 훨씬 재밌어집니다.</p>
+  <a class="btn" id="wmGo" href="https://littledirectorsoo-lgtm.github.io/goldilocks/" target="_blank" rel="noopener">골디락스존 세계관 웹툰 보기</a></div>
 </div></div>
 <div id="sndHint" hidden>🔊 화면을 톡 누르면 음악이 나옵니다</div>
 <button type="button" id="snd" aria-label="음악 끄기" hidden>♪ ON</button>
@@ -288,6 +306,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <div class="msg info">11월 21일(토) 오후 6시 40분까지 라이카시네마로 와 주세요. 아래 티켓 이미지를 저장해 두시면 편합니다. 상영이 끝나면 관람 후 설문 링크를 드립니다.</div>
     <button class="btn ghost" type="button" id="toHome">처음 화면으로</button>
     <div class="world">
+      <img src="../og.jpg" alt="골디락스존 세계관 웹툰" width="1200" height="630" loading="lazy" style="display:block;width:100%;height:auto;border-radius:10px;margin-bottom:12px">
       <div class="eyebrow">WHILE YOU WAIT</div>
       <b>상영회 전에 세계관을 먼저 만나 보세요</b>
       <p>오늘 볼 세 편은 하나의 세계관으로 이어집니다. 영화 사이사이의 이야기를 웹툰으로 먼저 보고 오시면 상영이 훨씬 재밌어집니다.</p>
@@ -474,7 +493,9 @@ $("form").addEventListener("submit", async e => {
   $("doneNo").textContent = mode === "invite" ? "초대석 · 관람 후 설문은 이름으로 참여합니다" : "예매번호 " + res.no + " · 취소와 관람 후 설문에 필요하니 꼭 캡처해 두세요";
   go(4);
   makeTicket(res, mode);
+  setTimeout(() => { if (!$("step4").hidden) { $("wm").hidden = false; $("wmX").focus(); } }, 1400);
 });
+(() => { const c = () => { $("wm").hidden = true; }; $("wmX").onclick = c; $("wmGo").addEventListener("click", () => setTimeout(c, 300)); $("wm").addEventListener("click", e => { if (e.target === $("wm")) c(); }); addEventListener("keydown", e => { if (e.key === "Escape") c(); }); })();
 /* 입장 화면 + 배경음 (브라우저 규칙상 첫 터치 때 재생) */
 (() => {
   const bgm = $("bgm"), btn = $("snd"); bgm.volume = 0;
