@@ -142,6 +142,19 @@ function doPost(e) {
       return out_({ ok: true });
     }
 
+    if (d.type === 'find') {
+      if (d.phone) {
+        const phone = digits_(d.phone);
+        const r = bookRows_().find(x => x.phone === phone && !x.cancel && norm_(x.name) === norm_(d.name));
+        if (!r) return out_({ ok: false, code: 'nofind', msg: '이름과 연락처가 맞는 예매를 찾지 못했습니다. 예매할 때 쓴 그대로 적어 주세요.' });
+        return out_({ ok: true, seat: r.seat, name: r.name, no: r.no, kind: 'public' });
+      }
+      const me = invites_().find(i => norm_(i.name) === norm_(d.name));
+      if (!me) return out_({ ok: false, code: 'noinvite', msg: '초대 명단에서 이름을 찾지 못했습니다.' });
+      if (!me.seat) return out_({ ok: false, code: 'noseat', msg: '아직 고른 좌석이 없습니다. 처음 화면의 \'초대받았어요\'에서 골라 주세요.' });
+      return out_({ ok: true, seat: me.seat, name: me.name, no: '초대석', kind: 'invite' });
+    }
+
     if (d.type === 'cancel' && d.name && !d.no) {
       const me = invites_().find(i => norm_(i.name) === norm_(d.name));
       if (!me) return out_({ ok: false, code: 'noinvite', msg: '초대 명단에서 이름을 찾지 못했습니다.' });
