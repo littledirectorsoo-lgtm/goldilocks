@@ -181,8 +181,8 @@ function doPost(e) {
       }
       if (st.publicLeft <= 0) return out_({ ok: false, code: 'soldout', msg: '선착순 좌석이 모두 찼습니다. 취소석이 생기면 다시 열립니다.' });
       const no = newNo_();
-      notify_('새 예매 · ' + seat + ' ' + name, ['이름: ' + name, '좌석: ' + seat, '예매번호: ' + no, '알게 된 경로: ' + clean_(d.from, 40)]);
       sh.appendRow([no, new Date(), '일반', seat, name, phone.replace(/^(\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3'), clean_(d.from, 40), clean_(d.expect), '예', '']);
+      notify_('새 예매 · ' + seat + ' ' + name, ['이름: ' + name, '좌석: ' + seat, '예매번호: ' + no, '알게 된 경로: ' + clean_(d.from, 40)]);
       return out_({ ok: true, seat: seat, name: name, no: no });
     }
     return out_({ ok: false, code: 'type', msg: '잘못된 요청입니다.' });
