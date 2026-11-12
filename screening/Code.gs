@@ -104,17 +104,25 @@ function doPost(e) {
     if (d.type === 'invite') {
       const me = invites_().find(i => norm_(i.name) === norm_(d.name));
       if (!me) return out_({ ok: false, code: 'noinvite', msg: '초대 명단에서 이름을 찾지 못했습니다. 감독에게 문의해 주세요.' });
-      if (me.seat) return out_({ ok: false, code: 'already', msg: '이미 ' + me.seat + ' 좌석을 고르셨습니다.', seat: me.seat });
       const sh = ss.getSheetByName(SHEET_INVITE);
       sh.getRange(me.row, 2, 1, 2).setValues([[seat, new Date()]]);
-      return out_({ ok: true, seat: seat, name: me.name, no: 'INV-' + seat });
+      return out_({ ok: true, seat: seat, name: me.name, no: 'INV-' + norm_(me.name), changed: me.seat ? me.seat : '' });
     }
 
     if (d.type === 'book') {
-      if (st.publicLeft <= 0) return out_({ ok: false, code: 'soldout', msg: '선착순 좌석이 모두 찼습니다.' });
       const phone = String(d.phone || '').replace(/\D/g, '');
       if (!d.name || phone.length < 10) return out_({ ok: false, code: 'info', msg: '이름과 연락처를 확인해 주세요.' });
-      if (bookings_().some(r => String(r[5]).replace(/\D/g, '') === phone)) return out_({ ok: false, code: 'dup', msg: '이 연락처로 이미 예매되어 있습니다.' });
+      const shB = ss.getSheetByName(SHEET_BOOK);
+      const nB = shB.getLastRow() - 1;
+      const all = nB < 1 ? [] : shB.getRange(2, 1, nB, 10).getValues();
+      for (let i = 0; i < all.length; i++) {
+        const r = all[i];
+        if (!r[9] && String(r[5]).replace(/\D/g, '') === phone) {
+          shB.getRange(i + 2, 4).setValue(seat);
+          return out_({ ok: true, seat: seat, name: r[4], no: r[0], changed: String(r[3]) });
+        }
+      }
+      if (st.publicLeft <= 0) return out_({ ok: false, code: 'soldout', msg: '선착순 좌석이 모두 찼습니다.' });
       const no = 'KJF-' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'MMdd') + '-' + seat;
       ss.getSheetByName(SHEET_BOOK).appendRow([no, new Date(), '일반', seat, d.name, "'" + d.phone, d.from || '', d.expect || '', d.agree ? '예' : '아니오', '']);
       return out_({ ok: true, seat: seat, name: d.name, no: no });
