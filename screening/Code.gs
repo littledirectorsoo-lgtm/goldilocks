@@ -131,10 +131,10 @@ function doPost(e) {
     const s = settings_();
 
     if (d.type === 'auth' || d.type === 'survey') {
-      if (!s.survey) return out_({ ok: false, code: 'surveyclosed', msg: '설문이 아직 열리지 않았거나 마감되었습니다.' });
+      if (!s.survey) return out_({ ok: false, code: 'surveyclosed', msg: '관객 반응 평가가 아직 열리지 않았거나 마감되었습니다. 상영이 끝난 뒤 다시 들어와 주세요.' });
       const me = whoAmI_(d);
       if (!me.ok) return out_({ ok: false, code: 'noauth', msg: me.msg });
-      if (surveyed_(me.key)) return out_({ ok: false, code: 'done', msg: '이미 설문을 보내 주셨습니다. 감사합니다.' });
+      if (surveyed_(me.key)) return out_({ ok: false, code: 'done', msg: '이미 평가를 보내 주셨습니다. 감사합니다.' });
       if (d.type === 'auth') return out_({ ok: true, name: me.name });
       const r = n => { const v = Number(n); return v >= 1 && v <= 5 ? v : ''; };
       const nps = d.nps === '' || d.nps == null ? '' : Math.max(0, Math.min(10, Number(d.nps)));

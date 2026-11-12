@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>관람 후 설문</title>
-<meta property="og:title" content="김정수필름 테스트 스크리닝 · 관람 후 설문">
+<title>관객 반응 평가</title>
+<meta property="og:title" content="김정수필름 테스트 스크리닝 · 관객 반응 평가">
 <meta property="og:description" content="3분이면 끝납니다. 솔직한 반응이 다음 편집에 그대로 들어갑니다.">
 <meta property="og:url" content="https://littledirectorsoo-lgtm.github.io/goldilocks/screening/survey.html">
 <meta name="twitter:card" content="summary_large_image">
@@ -65,8 +65,8 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
 <meta property="og:locale" content="ko_KR">
 <meta property="og:image:secure_url" content="https://littledirectorsoo-lgtm.github.io/goldilocks/screening/img/og_survey.jpg">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:alt" content="김정수필름 테스트 스크리닝 · 관람 후 설문">
-<meta name="twitter:title" content="김정수필름 테스트 스크리닝 · 관람 후 설문">
+<meta property="og:image:alt" content="김정수필름 테스트 스크리닝 · 관객 반응 평가">
+<meta name="twitter:title" content="김정수필름 테스트 스크리닝 · 관객 반응 평가">
 <meta name="twitter:description" content="3분이면 끝납니다. 솔직한 반응이 다음 편집에 그대로 들어갑니다.">
 <meta name="twitter:image" content="https://littledirectorsoo-lgtm.github.io/goldilocks/screening/img/og_survey.jpg">
 <meta itemprop="image" content="https://littledirectorsoo-lgtm.github.io/goldilocks/screening/img/og_survey.jpg">
@@ -80,8 +80,8 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
   <img src="img/poster.jpg" alt="김정수필름 테스트 스크리닝 포스터" style="display:block;width:100%;max-width:100%;aspect-ratio:16/9;object-fit:cover;object-position:50% 40%;border-radius:14px;margin-bottom:18px">
   <section id="gate">
     <div class="eyebrow">TEST SCREENING · 11.21</div>
-    <h1>관람 후 설문</h1>
-    <p class="sub">이 설문은 예매하고 관람하신 분만 참여할 수 있습니다. 한 분당 한 번입니다.</p>
+    <h1>관객 반응 평가</h1>
+    <p class="sub">이 평가지는 예매하고 관람하신 분만 참여할 수 있습니다. 한 분당 한 번입니다.</p>
     <div class="tabs" role="tablist">
       <button type="button" id="tPub" class="on" role="tab" aria-selected="true">일반 예매</button>
       <button type="button" id="tInv" role="tab" aria-selected="false">초대 손님</button>
@@ -97,7 +97,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
       <input id="gName" placeholder="홍길동">
     </div>
     <div id="gErr" class="msg" hidden></div>
-    <button class="btn" type="button" id="gGo">설문 시작</button>
+    <button class="btn" type="button" id="gGo">평가 시작</button>
   </section>
   <div id="formWrap" hidden>
   <div class="eyebrow">TEST SCREENING · 11.21</div>
@@ -127,7 +127,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
     <input id="nm" autocomplete="name" placeholder="익명이어도 괜찮습니다">
     <label class="check"><input type="checkbox" id="quote"> <span>제가 쓴 한마디를 홍보물에 이름 없이 인용해도 좋습니다.</span></label>
     <div id="err" class="msg" hidden></div>
-    <button class="btn" id="send" type="submit">설문 보내기</button>
+    <button class="btn" id="send" type="submit">평가 보내기</button>
   </form>
   </div>
   <div id="thanks" class="thanks" hidden>
@@ -166,7 +166,7 @@ $("gGo").onclick = async () => {
   if (who.kind === "invite" ? !cred.name : (!cred.no || !okPhone(cred.phone))) return e(who.kind === "invite" ? "이름을 적어 주세요." : "예매번호와 010으로 시작하는 11자리 휴대폰 번호를 확인해 주세요.");
   $("gGo").disabled = true; $("gGo").textContent = "확인 중…"; busyOn("예매 정보를 확인하는 중입니다");
   const res = API ? await post(Object.assign({type:"auth"}, cred)) : {ok:true, name:"미리보기"};
-  await busyOff();  $("gGo").disabled = false; $("gGo").textContent = "설문 시작";
+  await busyOff();  $("gGo").disabled = false; $("gGo").textContent = "평가 시작";
   if (!res.ok) return e(res.msg || "확인하지 못했습니다.");
   who = cred; $("gate").hidden = true; $("formWrap").hidden = false; $("nm").value = res.name || ""; window.scrollTo(0,0);
 };
@@ -198,14 +198,20 @@ $("f").addEventListener("submit", async e => {
   if (!ans.r1 || !ans.r2 || !ans.r3){ $("err").textContent = "세 작품 모두 별점을 눌러 주세요."; $("err").hidden = false; return; }
   const body = {...who, type:"survey", name:$("nm").value.trim(), r1:ans.r1, c1:$("c1").value.trim(), r2:ans.r2, c2:$("c2").value.trim(), r3:ans.r3, c3:$("c3").value.trim(),
     best:$("best").value, scene:$("scene").value.trim(), confuse:$("confuse").value.trim(), nps:ans.nps, next:$("next").value, msg:$("msg").value.trim(), quote:$("quote").checked};
-  $("send").disabled = true; $("send").textContent = "보내는 중…"; busyOn("설문을 보내는 중입니다");
+  $("send").disabled = true; $("send").textContent = "보내는 중…"; busyOn("평가를 보내는 중입니다");
   let ok = !API;
   let msg = "";
   if (API){ const res = await post(body); ok = res.ok; msg = res.msg || ""; if (res.code === "done") ok = true; }
   await busyOff();
-  if (!ok){ $("send").disabled = false; $("send").textContent = "설문 보내기"; $("err").textContent = msg || "보내지 못했습니다. 잠시 후 다시 눌러 주세요."; $("err").hidden = false; return; }
+  if (!ok){ $("send").disabled = false; $("send").textContent = "평가 보내기"; $("err").textContent = msg || "보내지 못했습니다. 잠시 후 다시 눌러 주세요."; $("err").hidden = false; return; }
   $("formWrap").hidden = true; $("thanks").hidden = false; window.scrollTo(0,0);
 });
+
+/* 예매 페이지에서 넘어온 경우 자동 확인 */
+(() => { let c; try { c = JSON.parse(sessionStorage.getItem("kjfAuth") || "null"); sessionStorage.removeItem("kjfAuth"); } catch(e) {}
+  if (!c) return;
+  if (c.kind === "invite") { $("tInv").click(); $("gName").value = c.name || ""; } else { $("tPub").click(); $("gNo").value = c.no || ""; $("gPhone").value = c.phone || ""; }
+  setTimeout(() => $("gGo").click(), 50); })();
 </script>
 </body>
 </html>
