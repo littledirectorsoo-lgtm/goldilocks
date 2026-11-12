@@ -35,7 +35,13 @@ function setup() {
   }
   if (set.getLastRow() < 5) set.appendRow(['설문 열기', '예', '"아니오"로 바꾸면 관람 후 설문이 닫힙니다']);
   const sv = mk(SHEET_SURVEY, SURVEY_HEADER);
-  if (sv.getLastRow() <= 1) sv.getRange(1, 1, 1, SURVEY_HEADER.length).setValues([SURVEY_HEADER]);
+  const head = sv.getRange(1, 1, 1, SURVEY_HEADER.length).getValues()[0].join('|');
+  if (head !== SURVEY_HEADER.join('|')) {
+    /* 예전 설문 양식(시험 응답)이면 비우고 새 머리줄로 바꿈 */
+    if (sv.getLastRow() > 1) sv.deleteRows(2, sv.getLastRow() - 1);
+    sv.getRange(1, 1, 1, sv.getMaxColumns()).clearContent();
+    sv.getRange(1, 1, 1, SURVEY_HEADER.length).setValues([SURVEY_HEADER]);
+  }
 }
 
 /* ---------- 읽기 ---------- */
