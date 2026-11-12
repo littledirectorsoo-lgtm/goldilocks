@@ -96,6 +96,7 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--seat);outline-of
 #snd{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:40;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:rgba(15,14,13,.85);color:var(--fg);font:700 12px var(--mono);cursor:pointer}
 #busy{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,9,8,.78);padding:0 24px}
 .cTabs{display:flex;gap:6px;margin:4px 0 12px}.cTabs button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line,#333);background:transparent;color:inherit;font:inherit;opacity:.6}.cTabs button.on{opacity:1;border-color:var(--accent,#e8692c);color:var(--accent,#e8692c)}
+.hall{margin:4px 0 16px}.hall img{display:block;width:100%;height:auto;border-radius:14px}.hall figcaption{margin-top:6px;font-size:12px;color:var(--mute)}
 #stepF[hidden],#fPhoneWrap[hidden],#busy[hidden],#cPub[hidden],#cInv[hidden],#cAsk[hidden],#intro[hidden],#sndHint[hidden],#snd[hidden]{display:none!important}
 #busy .box{width:100%;max-width:360px;text-align:center}
 #busy b{display:block;font-size:18px;margin-bottom:6px;color:var(--fg)}
@@ -217,6 +218,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
   <!-- 2. 좌석 -->
   <section id="step2" hidden>
     <h2>좌석을 골라 주세요</h2>
+    <figure class="hall"><img src="img/hall.jpg" alt="라이카시네마 2관 좌석 26석 사진" width="949" height="219"><figcaption>라이카시네마 2관 · 26석 · 스크린 쪽에서 본 모습</figcaption></figure>
     <div class="screen">SCREEN</div>
     <div class="map" id="map" role="group" aria-label="좌석 배치도"></div>
     <div class="legend"><span><i style="background:var(--seat)"></i>선택 가능</span><span><i style="background:var(--mine)"></i>내 좌석</span><span><i style="background:var(--taken)"></i>선택 불가</span></div>
@@ -276,9 +278,9 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
 const API = "https://script.google.com/macros/s/AKfycbwBl3QVObJy7-MZiiMmgQQ5gjPTlWLacFfcPjZ1FtEDiYc48wLbeeInkxwHcPh_r-6G/exec";
 /* 상영관 좌석 배치 (행: 좌석 수, 통로 위치). 실제 배치가 다르면 여기만 고칩니다 */
 const LAYOUT = [
-  {row:"A", n:8, aisle:4},
-  {row:"B", n:9, aisle:4},
-  {row:"C", n:9, aisle:4}
+  {row:"A", n:9, aisle:99},
+  {row:"B", n:9, aisle:99},
+  {row:"C", n:8, aisle:4}
 ];
 
 const $ = id => document.getElementById(id);
