@@ -33,7 +33,7 @@ h1{font-size:30px;line-height:1.25;margin:6px 0 4px;font-weight:900;text-wrap:ba
 .hero{position:relative;margin:0 0 20px;border-radius:14px;overflow:hidden;aspect-ratio:4/5;max-width:100%;background:#000}
 .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
 .hero img.on{opacity:1}
-@media (prefers-reduced-motion:no-preference){.hero img{transition:opacity 1.2s ease}}
+@media (prefers-reduced-motion:no-preference){.hero img{transition:opacity .7s ease}}
 .ticket{margin:22px 0;border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}
 .ticket .row{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:12px 16px;border-top:1px dashed var(--line)}
 .ticket .row:first-child{border-top:0}
@@ -393,7 +393,7 @@ async function makeTicket(res, md){
 }
 
 (() => { const im = [...document.querySelectorAll(".hero img")]; let k = 0;
-  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => { im[k].classList.remove("on"); k = (k + 1) % im.length; im[k].classList.add("on"); }, 4000); })();
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => { im[k].classList.remove("on"); k = (k + 1) % im.length; im[k].classList.add("on"); }, 2500); })();
 load(); setInterval(() => { if (!$("step2").hidden) load(); }, 15000);
 </script>
 </body>
