@@ -102,7 +102,8 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
   <div class="in">
     <div class="eyebrow">A KIMJUNGSOO FILM · TEST SCREENING</div>
     <p>11.21 SAT 19:00 · 라이카시네마 2관</p>
-    <small>화면 어디든 누르면 음악이 함께 시작됩니다</small>
+    <button type="button" id="enter">입장하기</button>
+    <small>음악과 함께 입장합니다</small>
   </div>
 </div>
 <div id="sndHint" hidden>🔊 화면을 톡 누르면 음악이 나옵니다</div>
@@ -332,9 +333,9 @@ $("form").addEventListener("submit", async e => {
   const on = () => { bgm.play().then(() => fadeTo(.55, 2500)).catch(() => {}); btn.textContent = "♪ ON"; btn.setAttribute("aria-label", "음악 끄기"); };
   const off = () => { fadeTo(0, 600); btn.textContent = "♪ OFF"; btn.setAttribute("aria-label", "음악 켜기"); };
   let muted = false;
-  const close = () => { if ($("intro").hidden) return; $("intro").classList.add("out"); btn.hidden = false; setTimeout(() => $("intro").hidden = true, 1000); };
+  const close = () => { if ($("intro").hidden) return; $("intro").classList.add("out"); btn.hidden = false; $("sndHint").hidden = true; setTimeout(() => $("intro").hidden = true, 1000); };
   /* 1) 열자마자 재생 시도 (데스크톱·일부 앱은 바로 나옴) */
-  bgm.play().then(() => { fadeTo(.55, 2500); btn.hidden = false; }).catch(() => { btn.textContent = "♪ OFF"; btn.hidden = false; $("sndHint").hidden = false; });
+  bgm.play().then(() => { fadeTo(.55, 2500); btn.hidden = false; }).catch(() => { btn.textContent = "♪ OFF"; });
   /* 2) 막히면 화면 어디든 첫 터치·스크롤 터치·키 입력 때 바로 시작 */
   const first = e => { if (e.target === btn || muted) return;
     if (!bgm.paused && bgm.volume > .05) return done();
@@ -343,7 +344,7 @@ $("form").addEventListener("submit", async e => {
   const doneL = () => ["pointerdown","touchstart","touchend","keydown","click"].forEach(t => removeEventListener(t, first, true));
   ["pointerdown","touchstart","touchend","keydown","click"].forEach(t => addEventListener(t, first, {capture:true, passive:true}));
   /* 포스터 화면은 2.5초 뒤 자동으로 사라짐 (눌러도 바로 넘어감) */
-  setTimeout(close, 2500); $("intro").addEventListener("click", close);
+  $("enter").onclick = () => { muted = false; bgm.play().then(() => { fadeTo(.55, 2000); btn.textContent = "♪ ON"; btn.setAttribute("aria-label", "음악 끄기"); }).catch(() => {}); done(); close(); };
   btn.onclick = () => { if (bgm.paused || bgm.volume < .05) { muted = false; on(); } else { muted = true; off(); } };
 })();
 
