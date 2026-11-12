@@ -76,6 +76,21 @@ function doPost(e) {
   try {
     const d = JSON.parse(e.postData.contents || '{}');
     const ss = SpreadsheetApp.getActive();
+    if (d.type === 'cancel') {
+      const sh = ss.getSheetByName(SHEET_BOOK);
+      const phone = String(d.phone || '').replace(/\D/g, '');
+      const no = String(d.no || '').trim().toUpperCase();
+      const n = sh.getLastRow() - 1;
+      const rows = n < 1 ? [] : sh.getRange(2, 1, n, 10).getValues();
+      for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        if (!r[9] && String(r[0]).toUpperCase() === no && String(r[5]).replace(/\D/g, '') === phone) {
+          sh.getRange(i + 2, 10).setValue('관객 취소 ' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'MM/dd HH:mm'));
+          return out_({ ok: true, seat: r[3] });
+        }
+      }
+      return out_({ ok: false, code: 'nofind', msg: '예매번호와 연락처가 맞는 예매를 찾지 못했습니다.' });
+    }
     if (d.type === 'survey') {
       ss.getSheetByName(SHEET_SURVEY).appendRow([new Date(), d.name || '', d.r1, d.c1, d.r2, d.c2, d.r3, d.c3, d.best, d.scene, d.confuse, d.nps, d.next, d.msg, d.quote ? '예' : '아니오']);
       return out_({ ok: true });
