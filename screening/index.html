@@ -99,6 +99,26 @@ html.lock main,html.lock footer{visibility:hidden}
 #busy{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(10,9,8,.78);padding:0 24px}
 .cTabs{display:flex;gap:6px;margin:4px 0 12px}.cTabs button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line,#333);background:transparent;color:inherit;font:inherit;opacity:.6}.cTabs button.on{opacity:1;border-color:var(--accent,#e8692c);color:var(--accent,#e8692c)}
 .hall{margin:4px 0 16px}.hall img{display:block;width:100%;height:auto;border-radius:14px}.hall figcaption{margin-top:6px;font-size:12px;color:var(--mute)}
+.lineup .fbtn{all:unset;box-sizing:border-box;display:flex;gap:8px;width:100%;cursor:pointer;padding:4px 0;-webkit-tap-highlight-color:transparent}
+.lineup .fbtn span{flex:1;min-width:0}.lineup .fbtn u{text-decoration-color:color-mix(in srgb,var(--seat) 60%,transparent);text-underline-offset:4px}.lineup .fbtn small{display:block;margin-top:2px}
+.lineup .fbtn i{font-style:normal;font-size:11px;color:var(--seat);align-self:center;border:1px solid var(--seat);border-radius:99px;padding:2px 7px}
+.lineup .fbtn:focus-visible{outline:2px solid var(--seat);outline-offset:2px}
+.lhint{margin:6px 0 0;font-size:12px;color:var(--mute)}
+#fm{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.78);display:flex;align-items:flex-end;justify-content:center;overscroll-behavior:contain}
+#fm .sheet{width:100%;max-width:560px;max-height:92dvh;overflow-y:auto;background:var(--panel);border-radius:18px 18px 0 0;padding:0 0 calc(20px + env(safe-area-inset-bottom,0px))}
+#fm .vid{position:relative;aspect-ratio:16/9;background:#000 center/cover no-repeat;border-radius:18px 18px 0 0;overflow:hidden}
+#fm .vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#fm .vid .pl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border:0;background:linear-gradient(transparent,rgba(0,0,0,.45));color:#fff;font:700 15px var(--sans);cursor:pointer;gap:8px}
+#fm .vid .pl b{width:58px;height:58px;border-radius:50%;background:var(--seat);color:#1a0d05;display:flex;align-items:center;justify-content:center;font-size:20px}
+#fm .x{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer}
+#fm .bd{padding:16px 20px 0;display:grid;gap:10px}
+#fm .en{font:12px var(--mono);letter-spacing:.12em;color:var(--seat);text-transform:uppercase}
+#fm h3{margin:0;font-size:22px;text-wrap:balance}
+#fm .mt{font-size:13px;color:var(--mute)}
+#fm p{margin:0;line-height:1.7}
+#fm .cr{font-size:13px;color:var(--mute)}
+#fm .wt{display:block;text-align:center;text-decoration:none}
+#fm[hidden]{display:none!important}
 #stepF[hidden],#fPhoneWrap[hidden],#busy[hidden],#cPub[hidden],#cInv[hidden],#cAsk[hidden],#intro[hidden],#sndHint[hidden],#snd[hidden]{display:none!important}
 #busy .box{width:100%;max-width:360px;text-align:center}
 #busy b{display:block;font-size:18px;margin-bottom:6px;color:var(--fg)}
@@ -133,6 +153,11 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <button type="button" id="enter">입장하기</button>
   </div>
 </div>
+<div id="fm" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="fT">
+  <div class="vid" id="fVid"><button type="button" class="x" id="fX" aria-label="닫기">✕</button><button type="button" class="pl" id="fPlay"><b>▶</b><span id="fPl">예고편 보기</span></button></div>
+  <div class="bd"><span class="en" id="fEn"></span><h3 id="fT"></h3><span class="mt" id="fMt"></span><p id="fSyn"></p><span class="cr" id="fCr"></span>
+  <a class="btn ghost wt" id="fWt" href="#" target="_blank" rel="noopener"></a></div>
+</div></div>
 <div id="sndHint" hidden>🔊 화면을 톡 누르면 음악이 나옵니다</div>
 <button type="button" id="snd" aria-label="음악 끄기" hidden>♪ ON</button>
 <audio id="bgm" src="audio/bgm.mp3?v=2" loop preload="auto"></audio>
@@ -152,11 +177,12 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <div class="row"><div class="k">DATE</div><div>2026. 11. 21 (토) 오후 7시</div></div>
     <div class="row"><div class="k">PLACE</div><div>라이카시네마 2관 · 26석</div></div>
     <div class="row"><div class="k">LINEUP</div>
-      <ol class="lineup">
-        <li><b>01</b><span>골디락스존 프로젝트 <small>17분 · SF 스릴러</small></span></li>
-        <li><b>02</b><span>잡아먹히거나 먼저 씹어라 <small>7분 · 파운드푸티지</small></span></li>
-        <li><b>03</b><span>기름도둑 <small>12분 · SF 디스토피아</small></span></li>
+      <div><ol class="lineup">
+        <li><button type="button" class="fbtn" data-f="gzp"><b>01</b><span><u>골디락스존 프로젝트</u><small>17분 · SF 스릴러</small></span><i>▶</i></button></li>
+        <li><button type="button" class="fbtn" data-f="bite"><b>02</b><span><u>잡아먹히거나 먼저 씹어라</u><small>7분 · 파운드푸티지</small></span><i>▶</i></button></li>
+        <li><button type="button" class="fbtn" data-f="oil"><b>03</b><span><u>기름도둑</u><small>12분 · SF 디스토피아</small></span><i>▶</i></button></li>
       </ol>
+      <p class="lhint">작품 이름을 누르면 줄거리와 예고편을 볼 수 있어요</p></div>
     </div>
     <div class="row"><div class="k">PRICE</div><div>무료 · 1인 1매</div></div>
   </div>
@@ -507,6 +533,34 @@ async function makeTicket(res, md){
 (() => { const im = [...document.querySelectorAll(".hero img")]; let k = 0;
   if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(() => { im[k].classList.remove("on"); k = (k + 1) % im.length; im[k].classList.add("on"); }, 2500); })();
 load(); setInterval(() => { if (!$("step2").hidden) load(); }, 15000);
+/* 라인업 작품 정보 + 예고편 */
+(() => {
+  const W = "https://littledirectorsoo-lgtm.github.io/goldilocks/";
+  const F = {
+    gzp: {t:"골디락스존 프로젝트", en:"Goldilocks Zone Project", mt:"17분 · SF 스릴러 · 국내외 독립영화제 초청·수상작", yt:"0k3heMn0Aak", yl:"메인 예고편 보기", img:"../film_gzp.jpg",
+      syn:"바이러스로 숨 쉴 수 없게 된 지구. 사람들은 거주 가능한 행성 '골디락스 존'으로 떠나고, 남은 사람들은 우주선 호출기를 찾아 헤맨다. 유진과 동생 민호는 엄마가 남긴 마지막 말을 따라 낡은 2층집으로 향한다.",
+      cr:"각본·감독 김정수", wt:"ep07v/index.html", wl:"이 영화 앞 이야기, 웹툰 11화부터 보기"},
+    bite: {t:"잡아먹히거나 먼저 씹어라", en:"Get Eaten, or Bite First", mt:"7분 · 스릴러 · 파운드 푸티지", yt:"vbgv7xouhbs", yl:"티저 예고편 보기", img:"../film_bite.jpg",
+      syn:"비밀 수술실에서 유출된 CCTV. 실험대 위에 묶인 249번, 그리고 화면 밖 통제실에서 들려오는 세 박사의 목소리. 그들의 대화는 한가롭고, 249번의 비명은 통제실에 닿지 않는다.",
+      cr:"각본·감독 김정수 · 출연 편수창, 박재한, 김강태, 김조은", wt:"ep05/index.html", wl:"이 영화 앞 이야기, 웹툰 5화부터 보기"},
+    oil: {t:"기름도둑", en:"Oil Thief", mt:"12분 · SF 디스토피아 스릴러", yt:"f0E8KOL6a9s", yl:"티저 예고편 보기", img:"../film_oil.jpg",
+      syn:"에너지와 생명공학을 독점한 기업 골디락스가 나라를 대신하는 가까운 미래. 남매 승민과 유림은 차와 주유소를 돌며 기름을 훔친다. 오빠는 그 기름 어딘가에 엄마가 있다고 믿는다.",
+      cr:"각본·감독 김정수 · 제작 TAKE ZERO S2 / 김정수필름", wt:"ep06/index.html", wl:"이 영화 앞 이야기, 웹툰 7화부터 보기"}
+  };
+  const m = $("fm"), v = $("fVid"), bgm = $("bgm"); let cur, wasOn = false, last;
+  const reset = () => { v.querySelectorAll("iframe").forEach(f => f.remove()); $("fPlay").hidden = false; };
+  const open = k => { const d = F[k]; if (!d) return; cur = d; last = document.activeElement; reset();
+    v.style.backgroundImage = "url(" + d.img + ")"; $("fPl").textContent = d.yl; $("fEn").textContent = d.en; $("fT").textContent = "〈" + d.t + "〉";
+    $("fMt").textContent = d.mt; $("fSyn").textContent = d.syn; $("fCr").textContent = d.cr; $("fWt").href = W + d.wt; $("fWt").textContent = d.wl;
+    m.hidden = false; document.documentElement.style.overflow = "hidden"; $("fX").focus(); };
+  const close = () => { reset(); m.hidden = true; document.documentElement.style.overflow = ""; if (wasOn) { bgm.play().catch(() => {}); wasOn = false; } last && last.focus && last.focus(); };
+  $("fPlay").onclick = () => { if (!cur) return; wasOn = !bgm.paused; bgm.pause();
+    const f = document.createElement("iframe"); f.src = "https://www.youtube-nocookie.com/embed/" + cur.yt + "?autoplay=1&playsinline=1&rel=0";
+    f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen"; f.allowFullscreen = true; f.title = cur.t + " 예고편"; v.appendChild(f); $("fPlay").hidden = true; };
+  document.querySelectorAll(".lineup .fbtn").forEach(b => b.onclick = () => open(b.dataset.f));
+  $("fX").onclick = close; m.addEventListener("click", e => { if (e.target === m) close(); });
+  addEventListener("keydown", e => { if (e.key === "Escape" && !m.hidden) close(); });
+})();
 </script>
 </body>
 </html>
