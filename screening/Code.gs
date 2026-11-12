@@ -228,6 +228,7 @@ function doPost(e) {
       if (!name) return out_({ ok: false, code: 'info', msg: '이름을 적어 주세요.' });
       if (!validPhone_(phone)) return out_({ ok: false, code: 'info', msg: '휴대폰 번호는 010으로 시작하는 11자리로 적어 주세요. (예: 010-1234-5678)' });
       if (!d.agree) return out_({ ok: false, code: 'agree', msg: '개인정보 수집·이용에 동의해 주셔야 예매할 수 있습니다.' });
+      if (invites_().some(i => norm_(i.name) === norm_(name))) return out_({ ok: false, code: 'isinvite', msg: '초대 손님 명단에 있는 이름입니다. 초대받으셨다면 첫 화면의 「초대받았어요」에서 좌석을 골라 주세요. (초대받지 않았는데 이름이 같다면 이름 뒤에 생년월일 4자리를 붙여 주세요. 예: 홍길동0101)' });
       const mine = bookRows_().find(r => r.phone === phone && !r.cancel);
       const st = status_(mine ? mine.seat : '');
       if (st.taken.indexOf(seat) >= 0) return out_({ ok: false, code: 'taken', msg: '방금 다른 분이 고른 좌석입니다. 다른 좌석을 골라 주세요.', taken: status_().taken });
