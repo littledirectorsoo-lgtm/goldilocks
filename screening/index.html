@@ -360,8 +360,9 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <img id="ticketImg" alt="내 테스트 스크리닝 티켓" style="display:block;width:100%;max-width:100%;border-radius:14px;margin:14px 0 4px" hidden>
     <a class="btn" id="ticketSave" download="KJF_test_screening_ticket.png" hidden style="text-decoration:none;text-align:center">티켓 이미지 저장</a>
     <p class="sub" id="ticketHint" style="font-size:13px" hidden>저장이 안 되면 티켓 이미지를 길게 눌러 '사진에 저장'을 눌러 주세요.</p>
-    <div class="msg info">11월 21일(토) 오후 6시 50분까지 라이카시네마로 와 주세요. 아래 티켓 이미지를 저장해 두시면 편합니다. 상영이 끝나면 이 페이지 아래 「관객 반응 평가」에 참여해 주세요.</div>
+    <div class="msg info">11월 21일(토) 오후 6시 50분까지 라이카시네마로 와 주세요. 아래 티켓 이미지를 저장해 두시면 편합니다. 상영이 끝나면 아래 「관객 반응 평가 참여하기」를 눌러 주세요.</div>
     <div class="msg info">이 예매는 김정수필름 단독 예매라 라이카시네마에는 기록이 없습니다. 좌석 변경·취소는 이 페이지에서, 문의는 김정수필름으로 해 주세요.</div>
+    <button class="btn ghost" type="button" id="goResp2">관객 반응 평가 참여하기 (상영 후)</button>
     <button class="btn ghost" type="button" id="toHome">처음 화면으로</button>
     <div class="world">
       <img src="../og.jpg" alt="골디락스존 세계관 웹툰" width="1200" height="630" loading="lazy" style="display:block;width:100%;height:auto;border-radius:10px;margin-bottom:12px">
@@ -667,6 +668,7 @@ load(); setInterval(() => { if (!$("step2").hidden) load(); }, 15000);
   $("faqX").onclick = c; m.addEventListener("click", e => { if (e.target === m) c(); }); addEventListener("keydown", e => { if (e.key === "Escape" && !m.hidden) c(); });
 })();
 $("ntOk").onclick = () => { $("nt").hidden = true; };
+$("goResp2").onclick = () => { resetFlow(); setTimeout(() => $("goResp").click(), 50); };
 </script>
 </body>
 </html>
