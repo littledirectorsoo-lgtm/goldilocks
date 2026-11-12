@@ -42,13 +42,37 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
 .msg{margin-top:14px;padding:12px;border-radius:10px;font-size:14px;background:#3a1a1a;color:var(--err)}
 .thanks{text-align:center;padding-top:40px}
 .thanks .big{font-size:40px;font-weight:900;color:var(--mine)}
+.tabs{display:flex;gap:6px;margin:8px 0 4px}
+.tabs button{flex:1;padding:12px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--mute);font:inherit;cursor:pointer}
+.tabs button.on{border-color:var(--seat);color:var(--fg)}
 .demo{margin-bottom:16px;padding:10px 12px;border:1px dashed var(--seat);border-radius:10px;font-size:13px;color:var(--seat)}
 </style>
 </head>
 <body>
 <main class="wrap">
   <div id="demo" class="demo" hidden>시트 연결 전 미리보기입니다. 여기서 낸 답은 저장되지 않습니다.</div>
-  <div id="formWrap">
+  <section id="gate">
+    <div class="eyebrow">TEST SCREENING · 11.21</div>
+    <h1>관람 후 설문</h1>
+    <p class="sub">이 설문은 예매하고 관람하신 분만 참여할 수 있습니다. 한 분당 한 번입니다.</p>
+    <div class="tabs" role="tablist">
+      <button type="button" id="tPub" class="on" role="tab" aria-selected="true">일반 예매</button>
+      <button type="button" id="tInv" role="tab" aria-selected="false">초대 손님</button>
+    </div>
+    <div id="gPub">
+      <label for="gNo">예매번호</label>
+      <input id="gNo" placeholder="KJF-1234" autocapitalize="characters">
+      <label for="gPhone">예매할 때 쓴 연락처</label>
+      <input id="gPhone" type="tel" inputmode="numeric" placeholder="010-0000-0000">
+    </div>
+    <div id="gInv" hidden>
+      <label for="gName">이름</label>
+      <input id="gName" placeholder="홍길동">
+    </div>
+    <div id="gErr" class="msg" hidden></div>
+    <button class="btn" type="button" id="gGo">설문 시작</button>
+  </section>
+  <div id="formWrap" hidden>
   <div class="eyebrow">TEST SCREENING · 11.21</div>
   <h1>오늘 본 세 편, 솔직하게 들려주세요</h1>
   <p class="sub">3분이면 끝납니다. 좋았던 점보다 걸렸던 점이 더 도움이 됩니다.</p>
@@ -93,6 +117,20 @@ const FILMS = [
 ];
 const $ = id => document.getElementById(id);
 const ans = {r1:0,r2:0,r3:0,nps:""};
+let who = {kind:"public"};
+const post = async body => { try { const r = await fetch(API, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(body)}); return await r.json(); } catch(x){ return {ok:false, msg:"연결이 불안정합니다. 잠시 후 다시 눌러 주세요."}; } };
+const setTab = inv => { who.kind = inv ? "invite" : "public"; $("gPub").hidden = inv; $("gInv").hidden = !inv; $("tPub").classList.toggle("on", !inv); $("tInv").classList.toggle("on", inv); $("tPub").setAttribute("aria-selected", !inv); $("tInv").setAttribute("aria-selected", inv); $("gErr").hidden = true; };
+$("tPub").onclick = () => setTab(false); $("tInv").onclick = () => setTab(true);
+$("gGo").onclick = async () => {
+  const e = t => { $("gErr").textContent = t; $("gErr").hidden = false; };
+  const cred = who.kind === "invite" ? {kind:"invite", name:$("gName").value.trim()} : {kind:"public", no:$("gNo").value.trim(), phone:$("gPhone").value.trim()};
+  if (who.kind === "invite" ? !cred.name : (!cred.no || cred.phone.replace(/\D/g,"").length < 10)) return e(who.kind === "invite" ? "이름을 적어 주세요." : "예매번호와 연락처를 확인해 주세요.");
+  $("gGo").disabled = true; $("gGo").textContent = "확인 중…";
+  const res = API ? await post(Object.assign({type:"auth"}, cred)) : {ok:true, name:"미리보기"};
+  $("gGo").disabled = false; $("gGo").textContent = "설문 시작";
+  if (!res.ok) return e(res.msg || "확인하지 못했습니다.");
+  who = cred; $("gate").hidden = true; $("formWrap").hidden = false; $("nm").value = res.name || ""; window.scrollTo(0,0);
+};
 if (!API) $("demo").hidden = false;
 
 $("films").innerHTML = FILMS.map(f => `
@@ -119,12 +157,13 @@ $("nps").addEventListener("click", e => {
 $("f").addEventListener("submit", async e => {
   e.preventDefault();
   if (!ans.r1 || !ans.r2 || !ans.r3){ $("err").textContent = "세 작품 모두 별점을 눌러 주세요."; $("err").hidden = false; return; }
-  const body = {type:"survey", name:$("nm").value.trim(), r1:ans.r1, c1:$("c1").value.trim(), r2:ans.r2, c2:$("c2").value.trim(), r3:ans.r3, c3:$("c3").value.trim(),
+  const body = {...who, type:"survey", name:$("nm").value.trim(), r1:ans.r1, c1:$("c1").value.trim(), r2:ans.r2, c2:$("c2").value.trim(), r3:ans.r3, c3:$("c3").value.trim(),
     best:$("best").value, scene:$("scene").value.trim(), confuse:$("confuse").value.trim(), nps:ans.nps, next:$("next").value, msg:$("msg").value.trim(), quote:$("quote").checked};
   $("send").disabled = true; $("send").textContent = "보내는 중…";
   let ok = !API;
-  if (API){ try { const r = await fetch(API, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(body)}); ok = (await r.json()).ok; } catch(x){ ok = false; } }
-  if (!ok){ $("send").disabled = false; $("send").textContent = "설문 보내기"; $("err").textContent = "보내지 못했습니다. 잠시 후 다시 눌러 주세요."; $("err").hidden = false; return; }
+  let msg = "";
+  if (API){ const res = await post(body); ok = res.ok; msg = res.msg || ""; if (res.code === "done") ok = true; }
+  if (!ok){ $("send").disabled = false; $("send").textContent = "설문 보내기"; $("err").textContent = msg || "보내지 못했습니다. 잠시 후 다시 눌러 주세요."; $("err").hidden = false; return; }
   $("formWrap").hidden = true; $("thanks").hidden = false; window.scrollTo(0,0);
 });
 </script>

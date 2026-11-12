@@ -10,6 +10,9 @@ const SHEET_SET = '설정';
 const SHEET_SURVEY = '관람후기';
 
 const INVITES = ['김정수','이하림','김유엘','김준형','편수창','심애정','이채훈','이승현','최결','김강태','김조은','박재한','범수'];
+/* 라이카시네마 2관 26석 (예매 페이지 LAYOUT 과 같아야 함) */
+const ROWS = { A: 8, B: 9, C: 9 };
+const SURVEY_HEADER = ['시각','구분','예매번호/이름','골디락스존 프로젝트 별점','골디락스존 한마디','잡아먹히거나 먼저 씹어라 별점','잡아먹히거나 한마디','기름도둑 별점','기름도둑 한마디','가장 좋았던 작품','기억에 남는 장면','헷갈린 부분','추천 점수(0-10)','세계관 연결','하고 싶은 말','후기 인용 동의','적은 이름'];
 
 function setup() {
   const ss = SpreadsheetApp.getActive();
@@ -20,7 +23,8 @@ function setup() {
     sh.setFrozenRows(1);
     return sh;
   };
-  mk(SHEET_BOOK, ['예매번호','시각','구분','좌석','이름','연락처','알게 된 경로','기대하는 점','개인정보 동의','취소']);
+  const b = mk(SHEET_BOOK, ['예매번호','시각','구분','좌석','이름','연락처','알게 된 경로','기대하는 점','개인정보 동의','취소']);
+  b.getRange('F:F').setNumberFormat('@');
   const inv = mk(SHEET_INVITE, ['이름','좌석','선택 시각']);
   if (inv.getLastRow() === 1) INVITES.forEach(n => inv.appendRow([n, '', '']));
   const set = mk(SHEET_SET, ['항목','값','설명']);
@@ -29,103 +33,136 @@ function setup() {
     set.appendRow(['예매 열기', '예', '"아니오"로 바꾸면 예매가 닫힙니다']);
     set.appendRow(['막아 둘 좌석', '', '쉼표로 구분 (예: A1,A2) — 스태프·장비 자리']);
   }
-  mk(SHEET_SURVEY, ['시각','이름','골디락스존 프로젝트 별점','골디락스존 한마디','잡아먹히거나 먼저 씹어라 별점','잡아먹히거나 한마디','기름도둑 별점','기름도둑 한마디','가장 좋았던 작품','기억에 남는 장면','헷갈린 부분','추천 점수(0-10)','세계관 다음 이야기','하고 싶은 말','후기 인용 동의']);
+  if (set.getLastRow() < 5) set.appendRow(['설문 열기', '예', '"아니오"로 바꾸면 관람 후 설문이 닫힙니다']);
+  const sv = mk(SHEET_SURVEY, SURVEY_HEADER);
+  if (sv.getLastRow() <= 1) sv.getRange(1, 1, 1, SURVEY_HEADER.length).setValues([SURVEY_HEADER]);
 }
 
+/* ---------- 읽기 ---------- */
 function settings_() {
-  const v = SpreadsheetApp.getActive().getSheetByName(SHEET_SET).getRange(2, 2, 3, 1).getValues();
+  const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_SET);
+  const v = sh.getRange(2, 2, 4, 1).getValues();
   return {
-    cap: Number(v[0][0]) || 0,
+    cap: Math.max(0, Number(v[0][0]) || 0),
     open: String(v[1][0]).trim() !== '아니오',
-    blocked: String(v[2][0] || '').split(',').map(s => s.trim().toUpperCase()).filter(Boolean)
+    blocked: String(v[2][0] || '').split(/[,\s]+/).map(s => s.trim().toUpperCase()).filter(Boolean),
+    survey: String(v[3][0]).trim() !== '아니오'
   };
 }
-
-function bookings_() {
+function bookRows_() {
   const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_BOOK);
   const n = sh.getLastRow() - 1;
-  if (n < 1) return [];
-  return sh.getRange(2, 1, n, 10).getValues().filter(r => !r[9]);
+  const v = n < 1 ? [] : sh.getRange(2, 1, n, 10).getValues();
+  return v.map((r, i) => ({ row: i + 2, no: String(r[0]).trim().toUpperCase(), kind: String(r[2]), seat: String(r[3]).trim().toUpperCase(), name: String(r[4]), phone: digits_(r[5]), cancel: String(r[9]).trim() }));
 }
-
 function invites_() {
   const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_INVITE);
   const n = sh.getLastRow() - 1;
-  return n < 1 ? [] : sh.getRange(2, 1, n, 2).getValues().map((r, i) => ({ row: i + 2, name: String(r[0]).trim(), seat: String(r[1]).trim() }));
+  return n < 1 ? [] : sh.getRange(2, 1, n, 2).getValues().map((r, i) => ({ row: i + 2, name: String(r[0]).trim(), seat: String(r[1]).trim().toUpperCase() })).filter(i => i.name);
 }
-
-function status_() {
+function status_(exceptSeat) {
   const s = settings_();
-  const b = bookings_();
+  const live = bookRows_().filter(r => !r.cancel && r.seat);
   const inv = invites_();
-  const taken = b.map(r => String(r[3])).concat(inv.filter(i => i.seat).map(i => i.seat)).concat(s.blocked);
-  const pub = b.filter(r => r[2] === '일반').length;
-  return { ok: true, open: s.open, taken: taken, publicLeft: Math.max(0, s.cap - pub), cap: s.cap, invitePending: inv.filter(i => !i.seat).length };
+  const taken = live.map(r => r.seat).concat(inv.filter(i => i.seat).map(i => i.seat)).concat(s.blocked)
+    .filter((x, i, a) => x && a.indexOf(x) === i && x !== exceptSeat);
+  const pub = live.filter(r => r.kind === '일반').length;
+  return { ok: true, open: s.open, survey: s.survey, taken: taken, publicLeft: Math.max(0, s.cap - pub), cap: s.cap, invitePending: inv.filter(i => !i.seat).length };
 }
 
-const norm_ = s => String(s || '').replace(/\s/g, '').replace(/(배우|님|감독|조감독)$/g, '');
+/* ---------- 도우미 ---------- */
+const digits_ = s => String(s || '').replace(/\D/g, '');
+const norm_ = s => String(s || '').replace(/\s/g, '').replace(/(조감독님|감독님|배우님|조감독|감독|배우|님)$/g, '');
+const clean_ = (s, max) => { let t = String(s == null ? '' : s).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max || 300); if (/^[=+\-@]/.test(t)) t = "'" + t; return t; };
+const validSeat_ = s => { const m = /^([A-Z])(\d{1,2})$/.exec(s); return !!m && ROWS[m[1]] && +m[2] >= 1 && +m[2] <= ROWS[m[1]]; };
+const validPhone_ = p => /^01[016789]\d{7,8}$/.test(p);
 const out_ = o => ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
+const newNo_ = () => { const ex = bookRows_().map(r => r.no); let no; do { no = 'KJF-' + String(Math.floor(1000 + Math.random() * 9000)); } while (ex.indexOf(no) >= 0); return no; };
 
+/* 설문 자격 확인: 일반 = 예매번호+연락처, 초대 = 이름(좌석을 고른 사람) */
+function whoAmI_(d) {
+  if (d.kind === 'invite') {
+    const me = invites_().find(i => norm_(i.name) === norm_(d.name));
+    if (!me) return { ok: false, msg: '초대 명단에서 이름을 찾지 못했습니다.' };
+    return { ok: true, kind: '초대', key: me.name, name: me.name };
+  }
+  const no = String(d.no || '').trim().toUpperCase(), phone = digits_(d.phone);
+  const r = bookRows_().find(x => x.no === no && x.phone === phone && !x.cancel);
+  if (!r) return { ok: false, msg: '예매번호와 연락처가 맞는 예매를 찾지 못했습니다. 예매 완료 화면의 번호를 확인해 주세요.' };
+  return { ok: true, kind: '일반', key: r.no, name: r.name };
+}
+function surveyed_(key) {
+  const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_SURVEY);
+  const n = sh.getLastRow() - 1;
+  if (n < 1) return false;
+  return sh.getRange(2, 3, n, 1).getValues().some(r => String(r[0]) === key);
+}
+
+/* ---------- 요청 ---------- */
 function doGet(e) {
-  return out_(status_());
+  try { return out_(status_()); } catch (err) { return out_({ ok: false, code: 'error', msg: '잠시 후 다시 시도해 주세요.' }); }
 }
 
 function doPost(e) {
+  let d;
+  try { d = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (err) { return out_({ ok: false, code: 'bad', msg: '잘못된 요청입니다.' }); }
   const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  if (!lock.tryLock(25000)) return out_({ ok: false, code: 'busy', msg: '지금 예매가 몰려 있습니다. 잠시 후 다시 눌러 주세요.' });
   try {
-    const d = JSON.parse(e.postData.contents || '{}');
     const ss = SpreadsheetApp.getActive();
-    if (d.type === 'cancel') {
-      const sh = ss.getSheetByName(SHEET_BOOK);
-      const phone = String(d.phone || '').replace(/\D/g, '');
-      const no = String(d.no || '').trim().toUpperCase();
-      const n = sh.getLastRow() - 1;
-      const rows = n < 1 ? [] : sh.getRange(2, 1, n, 10).getValues();
-      for (let i = 0; i < rows.length; i++) {
-        const r = rows[i];
-        if (!r[9] && String(r[0]).toUpperCase() === no && String(r[5]).replace(/\D/g, '') === phone) {
-          sh.getRange(i + 2, 10).setValue('관객 취소 ' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'MM/dd HH:mm'));
-          return out_({ ok: true, seat: r[3] });
-        }
-      }
-      return out_({ ok: false, code: 'nofind', msg: '예매번호와 연락처가 맞는 예매를 찾지 못했습니다.' });
-    }
-    if (d.type === 'survey') {
-      ss.getSheetByName(SHEET_SURVEY).appendRow([new Date(), d.name || '', d.r1, d.c1, d.r2, d.c2, d.r3, d.c3, d.best, d.scene, d.confuse, d.nps, d.next, d.msg, d.quote ? '예' : '아니오']);
+    const s = settings_();
+
+    if (d.type === 'auth' || d.type === 'survey') {
+      if (!s.survey) return out_({ ok: false, code: 'surveyclosed', msg: '설문이 아직 열리지 않았거나 마감되었습니다.' });
+      const me = whoAmI_(d);
+      if (!me.ok) return out_({ ok: false, code: 'noauth', msg: me.msg });
+      if (surveyed_(me.key)) return out_({ ok: false, code: 'done', msg: '이미 설문을 보내 주셨습니다. 감사합니다.' });
+      if (d.type === 'auth') return out_({ ok: true, name: me.name });
+      const r = n => { const v = Number(n); return v >= 1 && v <= 5 ? v : ''; };
+      const nps = d.nps === '' || d.nps == null ? '' : Math.max(0, Math.min(10, Number(d.nps)));
+      ss.getSheetByName(SHEET_SURVEY).appendRow([new Date(), me.kind, me.key, r(d.r1), clean_(d.c1), r(d.r2), clean_(d.c2), r(d.r3), clean_(d.c3), clean_(d.best, 40), clean_(d.scene), clean_(d.confuse), nps, clean_(d.next, 40), clean_(d.msg, 1000), d.quote ? '예' : '아니오', clean_(d.name, 40)]);
       return out_({ ok: true });
     }
-    const st = status_();
-    if (!st.open) return out_({ ok: false, code: 'closed', msg: '예매가 마감되었습니다.' });
-    const seat = String(d.seat || '').toUpperCase();
-    if (!/^[A-Z]\d{1,2}$/.test(seat)) return out_({ ok: false, code: 'seat', msg: '좌석을 다시 골라 주세요.' });
-    if (st.taken.indexOf(seat) >= 0) return out_({ ok: false, code: 'taken', msg: '방금 다른 분이 고른 좌석입니다. 다른 좌석을 골라 주세요.', taken: st.taken });
+
+    if (d.type === 'cancel') {
+      const no = String(d.no || '').trim().toUpperCase(), phone = digits_(d.phone);
+      const r = bookRows_().find(x => x.no === no && x.phone === phone);
+      if (!r) return out_({ ok: false, code: 'nofind', msg: '예매번호와 연락처가 맞는 예매를 찾지 못했습니다.' });
+      if (r.cancel) return out_({ ok: false, code: 'already', msg: '이미 취소된 예매입니다.' });
+      ss.getSheetByName(SHEET_BOOK).getRange(r.row, 10).setValue('관객 취소 ' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'MM/dd HH:mm'));
+      return out_({ ok: true, seat: r.seat });
+    }
+
+    if (!s.open) return out_({ ok: false, code: 'closed', msg: '예매가 마감되었습니다.' });
+    const seat = String(d.seat || '').trim().toUpperCase();
+    if (!validSeat_(seat)) return out_({ ok: false, code: 'seat', msg: '없는 좌석입니다. 좌석을 다시 골라 주세요.' });
 
     if (d.type === 'invite') {
       const me = invites_().find(i => norm_(i.name) === norm_(d.name));
-      if (!me) return out_({ ok: false, code: 'noinvite', msg: '초대 명단에서 이름을 찾지 못했습니다. 감독에게 문의해 주세요.' });
-      const sh = ss.getSheetByName(SHEET_INVITE);
-      sh.getRange(me.row, 2, 1, 2).setValues([[seat, new Date()]]);
-      return out_({ ok: true, seat: seat, name: me.name, no: 'INV-' + norm_(me.name), changed: me.seat ? me.seat : '' });
+      if (!me) return out_({ ok: false, code: 'noinvite', msg: '초대 명단에서 이름을 찾지 못했습니다. 이름만(예: 홍길동) 적어 주시거나 감독에게 문의해 주세요.' });
+      const st = status_(me.seat);
+      if (st.taken.indexOf(seat) >= 0) return out_({ ok: false, code: 'taken', msg: '방금 다른 분이 고른 좌석입니다. 다른 좌석을 골라 주세요.', taken: status_().taken });
+      ss.getSheetByName(SHEET_INVITE).getRange(me.row, 2, 1, 2).setValues([[seat, new Date()]]);
+      return out_({ ok: true, seat: seat, name: me.name, no: '초대석', changed: me.seat && me.seat !== seat ? me.seat : '' });
     }
 
     if (d.type === 'book') {
-      const phone = String(d.phone || '').replace(/\D/g, '');
-      if (!d.name || phone.length < 10) return out_({ ok: false, code: 'info', msg: '이름과 연락처를 확인해 주세요.' });
-      const shB = ss.getSheetByName(SHEET_BOOK);
-      const nB = shB.getLastRow() - 1;
-      const all = nB < 1 ? [] : shB.getRange(2, 1, nB, 10).getValues();
-      for (let i = 0; i < all.length; i++) {
-        const r = all[i];
-        if (!r[9] && String(r[5]).replace(/\D/g, '') === phone) {
-          shB.getRange(i + 2, 4).setValue(seat);
-          return out_({ ok: true, seat: seat, name: r[4], no: r[0], changed: String(r[3]) });
-        }
+      const phone = digits_(d.phone), name = clean_(d.name, 40);
+      if (!name) return out_({ ok: false, code: 'info', msg: '이름을 적어 주세요.' });
+      if (!validPhone_(phone)) return out_({ ok: false, code: 'info', msg: '휴대폰 번호를 확인해 주세요. (예: 010-1234-5678)' });
+      if (!d.agree) return out_({ ok: false, code: 'agree', msg: '개인정보 수집·이용에 동의해 주셔야 예매할 수 있습니다.' });
+      const mine = bookRows_().find(r => r.phone === phone && !r.cancel);
+      const st = status_(mine ? mine.seat : '');
+      if (st.taken.indexOf(seat) >= 0) return out_({ ok: false, code: 'taken', msg: '방금 다른 분이 고른 좌석입니다. 다른 좌석을 골라 주세요.', taken: status_().taken });
+      const sh = ss.getSheetByName(SHEET_BOOK);
+      if (mine) {
+        sh.getRange(mine.row, 4).setValue(seat);
+        return out_({ ok: true, seat: seat, name: mine.name, no: mine.no, changed: mine.seat !== seat ? mine.seat : '' });
       }
-      if (st.publicLeft <= 0) return out_({ ok: false, code: 'soldout', msg: '선착순 좌석이 모두 찼습니다.' });
-      const no = 'KJF-' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'MMdd') + '-' + seat;
-      ss.getSheetByName(SHEET_BOOK).appendRow([no, new Date(), '일반', seat, d.name, "'" + d.phone, d.from || '', d.expect || '', d.agree ? '예' : '아니오', '']);
-      return out_({ ok: true, seat: seat, name: d.name, no: no });
+      if (st.publicLeft <= 0) return out_({ ok: false, code: 'soldout', msg: '선착순 좌석이 모두 찼습니다. 취소석이 생기면 다시 열립니다.' });
+      const no = newNo_();
+      sh.appendRow([no, new Date(), '일반', seat, name, phone.replace(/^(\d{3})(\d{3,4})(\d{4})$/, '$1-$2-$3'), clean_(d.from, 40), clean_(d.expect), '예', '']);
+      return out_({ ok: true, seat: seat, name: name, no: no });
     }
     return out_({ ok: false, code: 'type', msg: '잘못된 요청입니다.' });
   } catch (err) {

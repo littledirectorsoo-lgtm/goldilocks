@@ -113,7 +113,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <h2>예매 취소</h2>
     <p class="sub">예매 완료 화면의 예매번호와, 예매할 때 쓴 연락처를 넣어 주세요. 취소한 좌석은 바로 다른 분께 열립니다.</p>
     <label for="cNo">예매번호</label>
-    <input id="cNo" placeholder="KJF-1121-B4" autocapitalize="characters">
+    <input id="cNo" placeholder="KJF-1234" autocapitalize="characters">
     <label for="cPhone">연락처</label>
     <input id="cPhone" type="tel" inputmode="numeric" placeholder="010-0000-0000">
     <div id="cMsg" class="msg err" hidden></div>
@@ -257,7 +257,7 @@ $("form").addEventListener("submit", async e => {
   const body = {type: mode === "public" ? "book" : "invite", seat, name};
   if (mode === "public"){
     body.phone = $("phone").value.trim(); body.from = $("from").value; body.expect = $("expect").value.trim(); body.agree = $("agree").checked;
-    if (body.phone.replace(/\D/g,"").length < 10) return err("연락처를 확인해 주세요.");
+    if (!/^01[016789]\d{7,8}$/.test(body.phone.replace(/\D/g,""))) return err("휴대폰 번호를 확인해 주세요. (예: 010-1234-5678)");
     if (!body.agree) return err("개인정보 수집에 동의해 주셔야 예매할 수 있습니다.");
   }
   $("submit").disabled = true; $("submit").textContent = "확인 중…";
@@ -274,7 +274,8 @@ $("form").addEventListener("submit", async e => {
   }
   $("doneSeat").textContent = res.seat;
   $("doneName").textContent = res.changed ? (res.name + " 님, 좌석을 " + res.changed + "에서 " + res.seat + "(으)로 바꿨습니다.") : (res.name + " 님, 예매되었습니다.");
-  $("doneNo").textContent = "예매번호 " + res.no; go(4);
+  $("doneNo").textContent = mode === "invite" ? "초대석 · 관람 후 설문은 이름으로 참여합니다" : "예매번호 " + res.no + " · 취소와 관람 후 설문에 필요하니 꼭 캡처해 두세요";
+  go(4);
 });
 load(); setInterval(() => { if (!$("step2").hidden) load(); }, 15000);
 </script>
