@@ -89,8 +89,44 @@ const fmtP_ = p => String(p || '').replace(/^(\d{3})(\d{4})(\d{4})$/, '$1-$2-$3'
 const NOTIFY_TO = 'littledirectorsoo@gmail.com';
 function notify_(subject, lines) {
   try {
-    const st = status_();
-    MailApp.sendEmail(NOTIFY_TO, '[스크리닝] ' + subject, lines.concat(['', '남은 일반석 ' + st.publicLeft + '석 · 초대 미선택 ' + st.invitePending + '명', 'https://docs.google.com/spreadsheets/d/' + SpreadsheetApp.getActive().getId()]).join('\n'));
+    const st = status_(), s = settings_();
+    const live = bookRows_().filter(r => !r.cancel && r.seat);
+    const inv = invites_();
+    const who = {}; live.forEach(r => who[r.seat] = '일반'); inv.filter(i => i.seat).forEach(i => who[i.seat] = '초대');
+    const pub = live.filter(r => r.kind === '일반').length, invOn = inv.filter(i => i.seat).length;
+    const filled = pub + invOn, total = 26;
+    const esc = t => String(t).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+    const url = 'https://docs.google.com/spreadsheets/d/' + SpreadsheetApp.getActive().getId();
+    // 좌석 배치 (관객석 기준, A열이 스크린 앞)
+    const cell = id => { const k = who[id], bg = k === '일반' ? '#e2672b' : k === '초대' ? '#c9a227' : s.blocked.indexOf(id) >= 0 ? '#555' : '#2a2724';
+      return '<td style="width:26px;height:24px;background:' + bg + ';color:' + (k ? '#111' : '#8d867c') + ';font:11px monospace;text-align:center;border-radius:4px">' + id.slice(1) + '</td>'; };
+    const rowsH = Object.keys(ROWS).map(r => { let t = '<tr><td style="color:#8d867c;font:11px monospace;padding-right:6px">' + r + '</td>';
+      for (let i = 1; i <= ROWS[r]; i++) { if (r === 'C' && i === 5) t += '<td style="width:14px"></td>'; t += cell(r + i); }
+      return t + '</tr>'; }).join('');
+    const list = live.slice().sort((a, b) => a.seat.localeCompare(b.seat, 'en', { numeric: true }))
+      .map(r => '<tr><td style="padding:3px 10px 3px 0;font-weight:700">' + esc(r.seat) + '</td><td style="padding:3px 10px 3px 0">' + esc(r.name) + '</td><td style="padding:3px 10px 3px 0;color:#666">' + fmtP_(r.phone) + '</td><td style="color:#999">' + esc(r.no) + '</td></tr>').join('')
+      || '<tr><td style="color:#999">아직 없음</td></tr>';
+    const pend = inv.filter(i => !i.seat).map(i => esc(i.name)).join(', ') || '모두 선택 완료';
+    const invList = inv.filter(i => i.seat).sort((a, b) => a.seat.localeCompare(b.seat, 'en', { numeric: true })).map(i => esc(i.seat) + ' ' + esc(i.name)).join(' · ') || '아직 없음';
+    const box = (k, v, sub) => '<td style="padding:10px 14px;background:#f6f3ef;border-radius:10px;vertical-align:top"><div style="font-size:12px;color:#888">' + k + '</div><div style="font-size:22px;font-weight:800">' + v + '</div><div style="font-size:12px;color:#888">' + sub + '</div></td>';
+    const html = '<div style="font-family:-apple-system,Segoe UI,sans-serif;color:#1a1714;max-width:560px">'
+      + '<div style="font-size:13px;color:#e2672b;font-weight:700;letter-spacing:.06em">TEST SCREENING · 11.21 SAT 19:00</div>'
+      + '<h2 style="margin:6px 0 4px;font-size:20px">' + esc(subject) + '</h2>'
+      + '<div style="margin:0 0 16px;line-height:1.7">' + lines.map(esc).join('<br>') + '</div>'
+      + '<table style="border-collapse:separate;border-spacing:6px;margin:0 -6px 12px"><tr>'
+      + box('전체 좌석', filled + ' / ' + total, '빈 자리 ' + (total - filled - s.blocked.length) + '석')
+      + box('일반 선착순', pub + ' / ' + st.cap, '남은 ' + st.publicLeft + '석')
+      + box('초대 손님', invOn + ' / ' + inv.length, '미선택 ' + st.invitePending + '명')
+      + '</tr></table>'
+      + '<div style="background:#14120f;border-radius:12px;padding:14px;display:inline-block"><div style="color:#8d867c;font:11px monospace;text-align:center;letter-spacing:.3em;margin-bottom:8px">SCREEN</div>'
+      + '<table style="border-collapse:separate;border-spacing:3px">' + rowsH + '</table>'
+      + '<div style="font-size:11px;color:#8d867c;margin-top:8px"><span style="color:#e2672b">■</span> 일반 &nbsp;<span style="color:#c9a227">■</span> 초대 &nbsp;<span style="color:#2a2724">■</span> 빈 자리</div></div>'
+      + '<h3 style="font-size:14px;margin:18px 0 6px">일반 예매 명단 (' + pub + ')</h3><table style="font-size:13px;border-collapse:collapse">' + list + '</table>'
+      + '<h3 style="font-size:14px;margin:16px 0 6px">초대석 (' + invOn + ')</h3><div style="font-size:13px;line-height:1.7">' + invList + '</div>'
+      + '<div style="font-size:13px;color:#888;margin-top:4px">좌석 미선택: ' + pend + '</div>'
+      + '<p style="margin-top:18px"><a href="' + url + '" style="color:#e2672b">구글시트에서 전체 보기 →</a></p></div>';
+    const text = lines.concat(['', '[현재 현황]', '전체 ' + filled + '/' + total + '석', '일반 ' + pub + '/' + st.cap + ' (남은 ' + st.publicLeft + '석)', '초대 ' + invOn + '/' + inv.length + ' (미선택 ' + st.invitePending + '명)', url]).join('\n');
+    MailApp.sendEmail({ to: NOTIFY_TO, subject: '[스크리닝 ' + filled + '/' + total + '] ' + subject, body: text, htmlBody: html });
   } catch (e) {}
 }
 function testNotify() { notify_('알림 시험', ['예매 알림이 이렇게 옵니다.']); }
