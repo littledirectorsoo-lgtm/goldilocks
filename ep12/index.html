@@ -533,4 +533,5 @@ var id=Date.now().toString(36)+Math.random().toString(36).slice(2,8),k=ED?rnd():
 (ED?sha(k):Promise.resolve("")).then(function(h){var fl={ep:{stringValue:E},name:{stringValue:n},text:{stringValue:t}};if(ED)fl.h={stringValue:h};
 return fetch(B+":commit?key="+K,{method:"POST",body:JSON.stringify({writes:[{update:{name:P+id,fields:fl},currentDocument:{exists:false},updateTransforms:[{fieldPath:"ts",setToServerValue:"REQUEST_TIME"}]}]})})})
 .then(function(r){BT.disabled=false;if(r.ok){if(ED)setKey(id,k);reset();load()}else{BT.textContent="다시 시도"}}).catch(function(){BT.disabled=false})});
-load()})();</script></body></html>
+load()})();</script><style>.sndbar{transition:opacity .25s,transform .25s}.sndbar.away{opacity:0;transform:translateY(24px);pointer-events:none}</style><script>(function(){var y=scrollY;addEventListener("scroll",function(){var b=document.querySelector(".sndbar");if(!b)return;var n=scrollY,end=n+innerHeight>=document.documentElement.scrollHeight-80;if(n<120)b.classList.remove("away");else if(n>y+4&&!end)b.classList.add("away");else if(n<y-4||end)b.classList.remove("away");y=n},{passive:true})})();</script>
+</body></html>
