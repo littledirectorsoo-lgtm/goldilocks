@@ -148,8 +148,9 @@ function whoAmI_(d) {
 function surveyed_(key) {
   const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_SURVEY);
   const n = sh.getLastRow() - 1;
-  if (n < 1) return false;
-  return sh.getRange(2, 3, n, 1).getValues().some(r => String(r[0]) === key);
+  if (n < 1) return 0;
+  const i = sh.getRange(2, 3, n, 1).getValues().findIndex(r => String(r[0]) === key);
+  return i < 0 ? 0 : i + 2;
 }
 
 /* ---------- 요청 ---------- */
@@ -170,12 +171,14 @@ function doPost(e) {
       if (!s.survey) return out_({ ok: false, code: 'surveyclosed', msg: '관객 반응 평가가 아직 열리지 않았거나 마감되었습니다. 상영이 끝난 뒤 다시 들어와 주세요.' });
       const me = whoAmI_(d);
       if (!me.ok) return out_({ ok: false, code: 'noauth', msg: me.msg });
-      if (surveyed_(me.key)) return out_({ ok: false, code: 'done', msg: '이미 평가를 보내 주셨습니다. 감사합니다.' });
-      if (d.type === 'auth') return out_({ ok: true, name: me.name });
+      const prev = surveyed_(me.key);
+      if (d.type === 'auth') return out_({ ok: true, name: me.name, redo: !!prev });
       const r = n => { const v = Number(n); return v >= 1 && v <= 5 ? v : ''; };
       const nps = d.nps === '' || d.nps == null ? '' : Math.max(0, Math.min(10, Number(d.nps)));
-      ss.getSheetByName(SHEET_SURVEY).appendRow([new Date(), me.kind, me.key, r(d.r1), clean_(d.c1), r(d.r2), clean_(d.c2), r(d.r3), clean_(d.c3), clean_(d.best, 40), clean_(d.scene), clean_(d.confuse), nps, clean_(d.next, 40), clean_(d.msg, 1000), d.quote ? '예' : '아니오', clean_(d.name, 40)]);
-      return out_({ ok: true });
+      const row = [new Date(), me.kind, me.key, r(d.r1), clean_(d.c1), r(d.r2), clean_(d.c2), r(d.r3), clean_(d.c3), clean_(d.best, 40), clean_(d.scene), clean_(d.confuse), nps, clean_(d.next, 40), clean_(d.msg, 1000), d.quote ? '예' : '아니오', clean_(d.name, 40)];
+      const ssh = ss.getSheetByName(SHEET_SURVEY);
+      if (prev) ssh.getRange(prev, 1, 1, row.length).setValues([row]); else ssh.appendRow(row);
+      return out_({ ok: true, redo: !!prev });
     }
 
     if (d.type === 'find') {
