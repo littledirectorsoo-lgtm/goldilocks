@@ -43,6 +43,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
 .starts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
 .starts button{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--fg);font:inherit;font-size:14px;cursor:pointer}
 .starts button:active,.starts button.on{border-color:var(--seat);color:var(--seat)}
+.cnt{text-align:right;font-size:12px;color:var(--mute);margin-top:4px;font-variant-numeric:tabular-nums}
 .nps{display:grid;grid-template-columns:repeat(11,1fr);gap:4px}
 .nps button{padding:10px 0;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);font:700 13px var(--mono);cursor:pointer}
 .nps button.on{background:var(--seat);color:#1a0d05;border-color:var(--seat)}
@@ -127,10 +128,11 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
 
     <label for="next">세 편이 한 세계관으로 이어진다는 게 느껴졌나요?</label>
     <select id="next"><option value="">선택해 주세요</option><option>네, 이어지는 게 보였어요</option><option>조금 느꼈어요</option><option>잘 모르겠어요</option><option>따로따로 봤어요</option></select>
-    <label for="msg">마지막 한마디 (선택)</label>
-    <p class="hint">눌러서 이어 쓰셔도 되고, 한 단어만 남겨도 충분합니다.</p>
-    <div class="starts" id="starts"><button type="button">좋았던 건 </button><button type="button">아쉬웠던 건 </button><button type="button">다음엔 이런 걸 보고 싶어요: </button><button type="button">한 줄로 말하면 </button><button type="button">응원해요!</button></div>
-    <textarea id="msg" rows="2" placeholder="예: 옷장 장면에서 소름 돋았어요"></textarea>
+    <label for="msg">영화가 이랬으면 좋겠어요 (선택)</label>
+    <p class="hint">장면, 인물, 결말, 소리 무엇이든 좋습니다. 버튼을 눌러 이어 쓰셔도 되고, 한 줄이면 충분합니다.</p>
+    <div class="starts" id="starts"><button type="button">이 장면이 더 길었으면: </button><button type="button">이 장면은 짧거나 없어도: </button><button type="button">이런 장면이 있었으면: </button><button type="button">이 인물이 더 보고 싶어요: </button><button type="button">결말이 </button><button type="button">소리·음악이 </button></div>
+    <textarea id="msg" rows="3" maxlength="1000" placeholder="예: 마지막 장면을 조금 더 길게 보고 싶어요"></textarea>
+    <div class="cnt"><span id="msgN">0</span> / 1000자</div>
     <label for="nm">이름 (선택)</label>
     <input id="nm" autocomplete="name" placeholder="익명이어도 괜찮습니다">
     <label class="check"><input type="checkbox" id="quote"> <span>제가 쓴 한마디를 홍보물에 이름 없이 인용해도 좋습니다.</span></label>
@@ -195,7 +197,8 @@ document.querySelectorAll(".stars").forEach(g => g.addEventListener("click", e =
   const v = +b.dataset.v; ans["r"+g.dataset.k] = v;
   g.querySelectorAll("button").forEach(x => { const on = +x.dataset.v <= v; x.classList.toggle("on", on); x.setAttribute("aria-checked", +x.dataset.v === v); });
 }));
-document.querySelectorAll("#starts button").forEach(b => b.onclick = () => { const t = $("msg"); const v = b.textContent; t.value = t.value.trim() ? t.value.replace(/\s*$/, "\n") + v : v; b.classList.add("on"); t.focus(); t.setSelectionRange(t.value.length, t.value.length); });
+document.querySelectorAll("#starts button").forEach(b => b.onclick = () => { const t = $("msg"); const v = b.textContent; t.value = t.value.trim() ? t.value.replace(/\s*$/, "\n") + v : v; b.classList.add("on"); msgN(); t.focus(); t.setSelectionRange(t.value.length, t.value.length); });
+const msgN = () => $("msgN").textContent = $("msg").value.length; $("msg").addEventListener("input", msgN);
 $("nps").innerHTML = Array.from({length:11}, (_, i) => `<button type="button" data-v="${i}">${i}</button>`).join("");
 $("nps").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
