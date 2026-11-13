@@ -255,7 +255,7 @@ footer{margin-top:40px;color:var(--mute);font-size:13px;border-top:1px solid var
     <h2>어떻게 오시나요?</h2>
     <div class="choice">
       <button type="button" id="goPublic"><b>일반 예매 (선착순)</b><small>남은 좌석 <span class="left" id="leftN">–</span>석 · 이름·연락처와 짧은 사전 질문 · 같은 연락처로 다시 하면 좌석만 바뀝니다</small></button>
-      <button type="button" id="goInvite"><b>초대 손님 (배우·스태프)</b><small>이름만 확인하고 좌석을 고릅니다 · 이미 고르셨다면 다시 고르면 좌석이 바뀝니다</small></button>
+      <button type="button" id="goInvite"><b>초대 손님 (배우·스태프)</b><small>남은 초대석 <span class="left" id="invN">–</span>석 · 이름만 확인하고 좌석을 고릅니다 · 이미 고르셨다면 다시 고르면 좌석이 바뀝니다</small></button>
     </div>
     <div id="closedMsg" class="msg err" hidden></div>
     <button class="btn ghost" type="button" id="goFind">내 좌석·티켓 다시 보기</button>
@@ -410,7 +410,7 @@ const fmtPhone = v => { let d = v.replace(/\D/g, "").slice(0, 11); return d.leng
 const okPhone = v => /^010\d{8}$/.test(String(v).replace(/\D/g, ""));
 document.querySelectorAll('input[type="tel"]').forEach(el => { el.maxLength = 13; el.addEventListener("input", () => { el.value = fmtPhone(el.value); }); });
 
-let mode = "public", seat = "", state = {open:true, taken:[], publicLeft:11};
+let mode = "public", seat = "", state = {open:true, taken:[], publicLeft:11, invitePending:9};
 const demo = !API;
 if (demo) $("demo").hidden = false;
 
@@ -422,6 +422,7 @@ async function load(){
 }
 function render(){
   $("leftN").textContent = state.publicLeft;
+  $("invN").textContent = (state.invitePending ?? "–");
   const closed = !state.open;
   $("closedMsg").hidden = !closed && state.publicLeft > 0;
   if (closed) $("closedMsg").textContent = "예매가 마감되었습니다.";
