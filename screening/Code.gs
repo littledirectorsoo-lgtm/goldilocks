@@ -12,7 +12,7 @@ const SHEET_SURVEY = '관람후기';
 const INVITES = ['김정수','이하림','김유엘','김준형','편수창','심애정','이채훈','이승현','최결','김강태','김조은','박재한','박범수','김창현','김유영'];
 /* 라이카시네마 2관 26석 (예매 페이지 LAYOUT 과 같아야 함) */
 const ROWS = { A: 9, B: 9, C: 8 };  // 라이카시네마 2관: A·B 9석, C 8석(가운데 통로)
-const SURVEY_HEADER = ['시각','구분','예매번호/이름','골디락스존 프로젝트 별점','골디락스존 한마디','잡아먹히거나 먼저 씹어라 별점','잡아먹히거나 한마디','기름도둑 별점','기름도둑 한마디','가장 좋았던 작품','기억에 남는 장면','헷갈린 부분','추천 점수(0-10)','세계관 연결','하고 싶은 말','후기 인용 동의','적은 이름'];
+const SURVEY_HEADER = ['시각','구분','예매번호/이름','골디락스존 프로젝트 별점','골디락스존 한마디','잡아먹히거나 먼저 씹어라 별점','잡아먹히거나 한마디','기름도둑 별점','기름도둑 한마디','가장 좋았던 작품','기억에 남는 장면','헷갈린 부분','추천 점수(0-10)','세계관 연결','이랬으면 좋겠어요','후기 인용 동의','적은 이름','골디락스존 반응','잡아먹히거나 반응','기름도둑 반응','놀람 세기','가장 크게 반응한 순간','골디락스존 연기','골디락스존 연기 코멘트','잡아먹히거나 연기','잡아먹히거나 연기 코멘트','기름도둑 연기','기름도둑 연기 코멘트'];
 
 function setup() {
   const ss = SpreadsheetApp.getActive();
@@ -175,8 +175,9 @@ function doPost(e) {
       if (d.type === 'auth') return out_({ ok: true, name: me.name, redo: !!prev });
       const r = n => { const v = Number(n); return v >= 1 && v <= 5 ? v : ''; };
       const nps = d.nps === '' || d.nps == null ? '' : Math.max(0, Math.min(10, Number(d.nps)));
-      const row = [new Date(), me.kind, me.key, r(d.r1), clean_(d.c1), r(d.r2), clean_(d.c2), r(d.r3), clean_(d.c3), clean_(d.best, 40), clean_(d.scene), clean_(d.confuse), nps, clean_(d.next, 40), clean_(d.msg, 5000), d.quote ? '예' : '아니오', clean_(d.name, 40)];
+      const row = [new Date(), me.kind, me.key, r(d.r1), clean_(d.c1), r(d.r2), clean_(d.c2), r(d.r3), clean_(d.c3), clean_(d.best, 40), clean_(d.scene), clean_(d.confuse), nps, clean_(d.next, 40), clean_(d.msg, 5000), d.quote ? '예' : '아니오', clean_(d.name, 40), clean_(d.x1, 200), clean_(d.x2, 200), clean_(d.x3, 200), clean_(d.jump, 40), clean_(d.peak, 500), clean_(d.a1, 20), clean_(d.ac1, 500), clean_(d.a2, 20), clean_(d.ac2, 500), clean_(d.a3, 20), clean_(d.ac3, 500)];
       const ssh = ss.getSheetByName(SHEET_SURVEY);
+      ssh.getRange(1, 1, 1, SURVEY_HEADER.length).setValues([SURVEY_HEADER]);
       if (prev) ssh.getRange(prev, 1, 1, row.length).setValues([row]); else ssh.appendRow(row);
       return out_({ ok: true, redo: !!prev });
     }
