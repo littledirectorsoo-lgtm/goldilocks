@@ -175,7 +175,7 @@ function doPost(e) {
       if (d.type === 'auth') return out_({ ok: true, name: me.name, redo: !!prev });
       const r = n => { const v = Number(n); return v >= 1 && v <= 5 ? v : ''; };
       const nps = d.nps === '' || d.nps == null ? '' : Math.max(0, Math.min(10, Number(d.nps)));
-      const row = [new Date(), me.kind, me.key, r(d.r1), clean_(d.c1), r(d.r2), clean_(d.c2), r(d.r3), clean_(d.c3), clean_(d.best, 40), clean_(d.scene), clean_(d.confuse), nps, clean_(d.next, 40), clean_(d.msg, 1000), d.quote ? '예' : '아니오', clean_(d.name, 40)];
+      const row = [new Date(), me.kind, me.key, r(d.r1), clean_(d.c1), r(d.r2), clean_(d.c2), r(d.r3), clean_(d.c3), clean_(d.best, 40), clean_(d.scene), clean_(d.confuse), nps, clean_(d.next, 40), clean_(d.msg, 5000), d.quote ? '예' : '아니오', clean_(d.name, 40)];
       const ssh = ss.getSheetByName(SHEET_SURVEY);
       if (prev) ssh.getRange(prev, 1, 1, row.length).setValues([row]); else ssh.appendRow(row);
       return out_({ ok: true, redo: !!prev });
