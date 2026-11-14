@@ -154,6 +154,13 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
 </main>
 <script>
 const API = "https://script.google.com/macros/s/AKfycbwBl3QVObJy7-MZiiMmgQQ5gjPTlWLacFfcPjZ1FtEDiYc48wLbeeInkxwHcPh_r-6G/exec";
+const apiFetch = async (url, opt) => { let last;
+  for (let i = 0; i < 6; i++) {
+    try { const r = await fetch(url, opt); if (!r.ok) throw new Error("http " + r.status);
+      const j = await r.json(); if (j && j.code === "busy" && i < 5) throw new Error("busy");
+      return { json: async () => j }; }
+    catch (e) { last = e; await new Promise(ok => setTimeout(ok, 700 * (i + 1) + Math.random() * 900)); }
+  } throw last; };
 const ACT = ["아쉬웠어요","조금 아쉬웠어요","보통이었어요","좋았어요","최고였어요"];
 const REACT = ["깜짝 놀랐어요", "소름 돋았어요", "긴장돼서 숨 참았어요", "무서웠어요", "징그러웠어요", "울컥했어요", "웃음이 났어요", "여운이 남았어요", "지루했어요", "너무 세서 눈 돌렸어요"];
 const FILMS = [
@@ -176,7 +183,7 @@ document.querySelectorAll('input[type="tel"]').forEach(el => { el.maxLength = 13
 
 const ans = {r1:0,r2:0,r3:0,nps:""};
 let who = {kind:"public"};
-const post = async body => { try { const r = await fetch(API, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(body)}); return await r.json(); } catch(x){ return {ok:false, msg:"연결이 불안정합니다. 잠시 후 다시 눌러 주세요."}; } };
+const post = async body => { try { const r = await apiFetch(API, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(body)}); return await r.json(); } catch(x){ return {ok:false, msg:"연결이 불안정합니다. 잠시 후 다시 눌러 주세요."}; } };
 const setTab = inv => { who.kind = inv ? "invite" : "public"; $("gPub").hidden = inv; $("gInv").hidden = !inv; $("tPub").classList.toggle("on", !inv); $("tInv").classList.toggle("on", inv); $("tPub").setAttribute("aria-selected", !inv); $("tInv").setAttribute("aria-selected", inv); $("gErr").hidden = true; };
 $("tPub").onclick = () => setTab(false); $("tInv").onclick = () => setTab(true);
 $("gGo").onclick = async () => {
