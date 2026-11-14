@@ -469,10 +469,10 @@ function typing(t,n){
 if(!BUF.typing){load("typing").catch(function(){});return 1}
 return fx("typing",t,{g:.8})}
 function trigger(el){var c=el.classList,x=el.textContent||"",t=T()+.02,n;
-if(c.contains("sfx")){n=pick(x,el);duckAll(Math.min(fx(n,t,n==="whoosh"?{g:.5}:null),3))}
-else if(c.contains("hum")){if(/띠/.test(x))duckAll(fx("ring",t));else{S.voice(t);duckAll(2.4)}}
+if(c.contains("sfx")){n=pick(x,el);if(n!=="ring")duckAll(Math.min(fx(n,t,n==="whoosh"?{g:.5}:null),3))}
+else if(c.contains("hum")){if(/띠/.test(x)){}else{S.voice(t);duckAll(2.4)}}
 else if(c.contains("rec"))duckAll(typing(t,x.replace(/\s/g,"").length));
-else if(c.contains("phone"))duckAll(fx("phone",t)+.5);
+else if(c.contains("phone")){}
 else if(c.contains("gap")||c.contains("black")){if(/음—/.test(x)){S.voice(t);duckAll(2.4)}
 else{duck(musDuck.gain,.03,2,.6,1.6);duck(ambDuck.gain,c.contains("black")?.15:.35,1.8,.5,1.4)}}}
 var SEL=".sfx,.hum,.rec,.bub.phone,.gap,.black";
