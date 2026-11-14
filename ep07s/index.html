@@ -474,7 +474,7 @@ var a=ambSrc,m=musCur,l=lay;ambSrc=null;musCur=null;musWant=undefined;lay=null;
 setTimeout(function(){[a,m].forEach(function(x){try{x&&x.s.stop()}catch(e){}});try{l&&l.stop()}catch(e){};if(!on&&ctx)ctx.suspend()},350)}
 addEventListener("scroll",onScroll,{passive:true});
 document.addEventListener("visibilitychange",function(){if(!ctx)return;document.hidden?ctx.suspend():on&&ctx.resume()});
-addEventListener("pagehide",function(){if(on)stop()});
+addEventListener("pagehide",function(){if(on)stop()});document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest('a[href*="youtu"],a[target="_blank"],.fi-card a,.fbtn,video,iframe');if(t&&on)stop()},true);
 ["touchend","pointerdown"].forEach(function(k){addEventListener(k,function(){if(on&&ctx&&ctx.state!=="running")ctx.resume()},{passive:true,capture:true})});
 if(armed){var g1=function(e){if(e.target===btn||e.target===vb)return;["pointerup","touchend","keydown"].forEach(function(k){removeEventListener(k,g1,true)});if(armed&&!on)start()};
 ["pointerup","touchend","keydown"].forEach(function(k){addEventListener(k,g1,true)})}
