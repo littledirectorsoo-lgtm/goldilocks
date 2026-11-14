@@ -22,7 +22,7 @@ body{background:var(--ground);color:var(--paper);font-family:var(--sans);margin:
 .head p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
 .p{position:relative;container-type:inline-size;margin-bottom:40px}
 .p.tight{margin-bottom:10px}
-.p img{display:block;width:100%;height:auto}
+.p img{display:block;width:100%;height:auto}.p video{display:block;width:100%;height:auto}
 .cap{position:absolute;background:var(--record);color:var(--ink);border:2px solid var(--ink);
   padding:.45em .7em;font:600 clamp(10px,2.2cqw,17px)/1.5 var(--sans);letter-spacing:.04em}
 .bub{position:absolute;background:#fff;color:var(--ink);border:2px solid var(--ink);border-radius:50%;
@@ -286,7 +286,7 @@ html.mo .snd{animation:mo-fade 1s ease-out 1.2s backwards}
   <div class="p tight"><img src="u05k.jpg" alt="서버에 꽂히는 작은 USB"><div class="sfx" style="left:6%;top:10%;transform:rotate(-8deg)">딸깍</div></div>
   <div class="p"><img src="u06k.jpg" alt="수술대 영상 세 개와 천천히 차오르는 복사 막대"><div class="cap" style="left:3%;top:5%">복사 중 · 249번<br>SHOT A · B · C</div></div>
   <div class="p"><img src="u06ka.jpg" alt="서버 모니터, 영상 썸네일 세 개 아래 소리 파형 파일 하나에 체크를 더하는 손"><div class="cap" style="left:3%;top:5%">영상 세 개.</div><div class="cap" style="left:4.9%;top:77.1%">그리고 통제실 음성 로그 하나.</div></div>
-  <div class="p"><img src="u06kb.jpg" alt="끝 직전에서 멈춘 복사 막대, 어두운 서버실 문 쪽에서 다가오는 발소리"><div class="sfx" style="left:45%;top:5%;font-size:clamp(20px,6cqw,48px);transform:rotate(-6deg)">저벅, 저벅</div></div>
+  <div class="p"><video src="u06kb.mp4" poster="u06kb.jpg" autoplay muted loop playsinline preload="metadata" aria-label="끝 직전에서 멈춘 복사 막대, 어두운 서버실 문 쪽에서 다가오는 발소리"></video><div class="sfx" style="left:45%;top:5%;font-size:clamp(20px,6cqw,48px);transform:rotate(-6deg)">저벅, 저벅</div></div>
   <div class="p"><img src="u07.jpg" alt="서버실 문간에 커피를 들고 선 박박사의 뒷모습"><div class="bub sm br" style="left:2%;top:70%">김박사, 아직 안 갔어?</div></div>
   <div class="p"><img src="u08.jpg" alt="마스크 위로 눈웃음 짓는 김박사, 한 손은 등 뒤에"><div class="bub sm bl" style="right:2%;left:auto;top:62%">로그 정리 좀 하고요.<br>박사님 먼저 들어가세요.</div></div>
   <div class="p tight"><img src="u08__b.jpg" alt="등 뒤로 돌린 김박사의 주먹. 마디가 하얗게 질리도록 USB를 감춰 쥐었다"></div>
