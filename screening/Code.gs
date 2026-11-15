@@ -159,6 +159,7 @@ function doGet(e) {
 }
 
 function doPost(e) {
+  const rv_ = reviewHook_(e); if (rv_) return rv_;
   let d;
   try { d = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (err) { return out_({ ok: false, code: 'bad', msg: '잘못된 요청입니다.' }); }
   const lock = LockService.getScriptLock();
@@ -262,4 +263,22 @@ function resetAll() {
   [SHEET_BOOK, SHEET_SURVEY].forEach(n => { const sh = ss.getSheetByName(n); if (sh.getLastRow() > 1) sh.deleteRows(2, sh.getLastRow() - 1); });
   /* 초대명단은 그대로 둠 */
   ss.getSheetByName(SHEET_SET).getRange(2, 1, 1, 3).setValues([['일반 선착순 좌석 수', '자동', '26석 - 초대명단 인원 - 막아 둔 좌석. 초대명단에 이름을 넣고 빼면 저절로 바뀝니다']]);
+}
+
+/* 웹툰 별점·한 줄 후기 → '웹툰후기' 시트 기록 + 메일 알림 */
+function reviewHook_(e) {
+  let d; try { d = JSON.parse((e && e.postData && e.postData.contents) || '{}'); } catch (err) { return null; }
+  if (d.type !== 'review') return null;
+  try {
+    const ss = SpreadsheetApp.getActive();
+    let sh = ss.getSheetByName('웹툰후기');
+    if (!sh) { sh = ss.insertSheet('웹툰후기'); sh.appendRow(['시각','화','제목','별점','닉네임','후기','페이지']); sh.setFrozenRows(1); }
+    let t = String(d.text || ''), star = '';
+    const m = t.match(/^★([\d.]+)\|/); if (m) { star = m[1]; t = t.slice(m[0].length); }
+    const ep = clean_(d.ep, 20), title = clean_(d.title, 60), name = clean_(d.name, 20) || '익명', body = clean_(t, 300);
+    sh.appendRow([new Date(), ep, title, star, name, body, clean_(d.url, 200)]);
+    MailApp.sendEmail({ to: NOTIFY_TO, subject: '[웹툰 후기] ' + title + (star ? ' ★' + star : '') + ' — ' + name,
+      body: [title, '별점: ' + (star || '없음'), '닉네임: ' + name, '', body || '(글 없이 별점만)', '', clean_(d.url, 200), '', '전체 기록: ' + ss.getUrl() + ' (웹툰후기 탭)'].join('\n') });
+  } catch (err) {}
+  return out_({ ok: true });
 }
